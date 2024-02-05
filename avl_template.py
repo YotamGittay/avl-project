@@ -200,7 +200,7 @@ class AVLTree(object):
 		while parent != None and parent.right == node:
 			node = parent
 			parent = parent.get_parent()
-		return parent;
+		return parent
 
 
 	"""inserts val at position i in the dictionary
@@ -225,7 +225,34 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, node):
-		return -1
+		if not node.is_real_node() or node == None:
+			return
+		if node.is_leaf():
+			parent = self.deleteLeaf(node);
+		elif not node.get_right.is_real_node() or not node.get_right.is_real_node():
+			parent = self.deleteEasy(node);
+		else:
+			parent = self.deleteBySuccessor(node)
+		self.update_ancestors_heights(parent)
+
+	def deleteLeaf(self, node):
+		if node == self.root:
+			# delete root
+			self.root = None
+
+		parent = node.parent
+		fake_node = AVLNode();
+		if parent.getLeft() == node:
+			parent.setLeft(fake_node)
+		else:
+			# right node
+			parent.setRight(fake_node)
+
+	def update_ancestors_heights(self, node):
+		parent = node
+		while parent != None and parent.is_real_node():
+			parent.fix_heights()
+
 
 
 	"""returns an array representing dictionary 
