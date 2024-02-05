@@ -261,7 +261,7 @@ class AVLTree(object):
 		else:
 			parent = self.deleteBySuccessor(node)
 		self.update_ancestors_heights(parent)
-		# test1
+		# test2
 
 	def deleteLeaf(self, node):
 		if node == self.root:
