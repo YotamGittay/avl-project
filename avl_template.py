@@ -167,6 +167,16 @@ class AVLNode(object):
 	def get_bf(self):
 		return self.get_left().get_hight() - self.get_right().get_hight()
 
+	"""returns whether self is a leaf 
+
+		@rtype: bool
+		@returns: True if self is a leaf , False otherwise 
+	"""
+	def is_leaf(self):
+		if not self.left.is_real_node() and not self.right.is_real_node():
+			return True
+		return False
+
 
 
 """
@@ -193,7 +203,31 @@ class AVLTree(object):
 	@returns: the AVLNode corresponding to key or None if key is not found.
 	"""
 	def search(self, key):
-		return None
+		return self.binary_search(self.root, key)
+
+	def binary_search(self, node, key):
+		if node == None or not node.is_real_node():
+			return None
+		if node.key == key:
+			return node
+		if node.key < key:
+			return self.binary_search(node.right, key)
+		return self.binary_search(node.left, key)
+
+
+	def successor(self, node):
+		if not node.is_real_node():
+			return None
+		if node.get_right().is_real_node():
+			curr = node.get_right()
+			while curr.left.is_real_node():
+				curr = curr.get_left()
+			return curr
+		parent = node.get_parent()
+		while parent != None and parent.right == node:
+			node = parent
+			parent = parent.get_parent()
+		return parent
 
 
 	"""inserts val at position i in the dictionary
@@ -218,7 +252,34 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, node):
-		return -1
+		if not node.is_real_node() or node == None:
+			return
+		if node.is_leaf():
+			parent = self.deleteLeaf(node);
+		elif not node.get_right.is_real_node() or not node.get_right.is_real_node():
+			parent = self.deleteEasy(node);
+		else:
+			parent = self.deleteBySuccessor(node)
+		self.update_ancestors_heights(parent)
+
+	def deleteLeaf(self, node):
+		if node == self.root:
+			# delete root
+			self.root = None
+
+		parent = node.parent
+		fake_node = AVLNode();
+		if parent.getLeft() == node:
+			parent.setLeft(fake_node)
+		else:
+			# right node
+			parent.setRight(fake_node)
+
+	def update_ancestors_heights(self, node):
+		parent = node
+		while parent != None and parent.is_real_node():
+			parent.fix_heights()
+
 
 
 	"""returns an array representing dictionary 
