@@ -140,6 +140,11 @@ class AVLNode(object):
 	def is_real_node(self):
 		return False
 
+	"""returns whether self is a leaf 
+
+		@rtype: bool
+		@returns: True if self is a leaf , False otherwise 
+	"""
 	def is_leaf(self):
 		if not self.left.is_real_node() and not self.right.is_real_node():
 			return True
