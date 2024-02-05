@@ -15,13 +15,18 @@ class AVLNode(object):
 	@type value: any
 	@param value: data of your node
 	"""
-	def __init__(self, key, value):
+	def __init__(self, key, value, isFake = False): # constructor of node
 		self.key = key
 		self.value = value
 		self.left = None
 		self.right = None
 		self.parent = None
-		self.height = -1
+		if isFake: # if node is virtual
+			self.size = 0
+			self.height = -1
+		else: # if node is real
+			self.size = 1
+			self.height = 0
 		
 
 	"""returns the left child
@@ -29,7 +34,7 @@ class AVLNode(object):
 	@returns: the left child of self, None if there is no left child (if self is virtual)
 	"""
 	def get_left(self):
-		return None
+		return self.left
 
 
 
@@ -38,8 +43,8 @@ class AVLNode(object):
 	@rtype: AVLNode
 	@returns: the right child of self, None if there is no right child (if self is virtual)
 	"""
-	def get_right(self):
-		return None
+	def get_right(self): 
+		return self.right
 
 
 	"""returns the parent 
@@ -48,7 +53,7 @@ class AVLNode(object):
 	@returns: the parent of self, None if there is no parent
 	"""
 	def get_parent(self):
-		return None
+		return self.parent
 
 
 	"""returns the key
@@ -57,7 +62,7 @@ class AVLNode(object):
 	@returns: the key of self, None if the node is virtual
 	"""
 	def get_key(self):
-		return None
+		return self.key
 
 
 	"""returns the value
@@ -66,7 +71,7 @@ class AVLNode(object):
 	@returns: the value of self, None if the node is virtual
 	"""
 	def get_value(self):
-		return None
+		return self.value
 
 
 	"""returns the height
@@ -75,7 +80,10 @@ class AVLNode(object):
 	@returns: the height of self, -1 if the node is virtual
 	"""
 	def get_height(self):
-		return -1
+		return self.height
+	
+	def get_size(self):
+		return self.size
 
 
 	"""sets left child
@@ -83,8 +91,11 @@ class AVLNode(object):
 	@type node: AVLNode
 	@param node: a node
 	"""
-	def set_left(self, node):
-		return None
+	def set_left(self, node):  # sets left son of current node
+		self.left = node
+		self.fixSize()  # fix the size of current node
+		self.fixHight()   # fix the hight of current node
+
 
 
 	"""sets right child
@@ -93,8 +104,16 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def set_right(self, node):
-		return None
+		self.right = node
+		self.fix_size()
+		self.fix_hight()
 
+	def fix_size(self):
+		new_size = 1 + self.get_left().get_size() + self.get_right.get_size()
+		self.set_size(new_size)
+
+	def fix_hight(self):
+		self.set_height(max(self.get_left().get_hight(), self.get_right().get_left()) + 1)
 
 	"""sets parent
 
@@ -102,7 +121,7 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def set_parent(self, node):
-		return None
+		self.parent = node
 
 
 	"""sets key
@@ -111,7 +130,7 @@ class AVLNode(object):
 	@param key: key
 	"""
 	def set_key(self, key):
-		return None
+		self.key = key
 
 
 	"""sets value
@@ -120,7 +139,7 @@ class AVLNode(object):
 	@param value: data
 	"""
 	def set_value(self, value):
-		return None
+		self.value = value
 
 
 	"""sets the height of the node
@@ -129,7 +148,10 @@ class AVLNode(object):
 	@param h: the height
 	"""
 	def set_height(self, h):
-		return None
+		self.height = h
+
+	def set_size(self, size):
+		self.size = size
 
 
 	"""returns whether self is not a virtual node 
@@ -138,7 +160,12 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		return False
+		if self.get_value == None:
+			return False
+		return True
+	
+	def get_bf(self):
+		return self.get_left().get_hight() - self.get_right().get_hight()
 
 
 
@@ -249,3 +276,14 @@ class AVLTree(object):
 	"""
 	def get_root(self):
 		return None
+	
+
+
+
+
+	node1 = AVLNode(2, "a")
+	node2 = AVLNode(3, "b")
+
+	root = AVLNode(4, "c")
+
+	root.
