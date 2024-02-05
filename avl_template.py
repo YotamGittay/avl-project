@@ -176,7 +176,16 @@ class AVLTree(object):
 	@returns: the AVLNode corresponding to key or None if key is not found.
 	"""
 	def search(self, key):
-		return None
+		return self.binary_search(self.root, key)
+
+	def binary_search(self, node, key):
+		if node == None or not node.is_real_node():
+			return None
+		if node.key == key:
+			return node
+		if node.key < key:
+			return self.binary_search(node.right, key)
+		return self.binary_search(node.left, key)
 
 
 
