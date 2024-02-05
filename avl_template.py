@@ -188,6 +188,20 @@ class AVLTree(object):
 		return self.binary_search(node.left, key)
 
 
+	def successor(self, node):
+		if not node.is_real_node():
+			return None
+		if node.get_right().is_real_node():
+			curr = node.get_right()
+			while curr.left.is_real_node():
+				curr = curr.get_left()
+			return curr
+		parent = node.get_parent()
+		while parent != None and parent.right == node:
+			node = parent
+			parent = parent.get_parent()
+		return parent;
+
 
 	"""inserts val at position i in the dictionary
 
