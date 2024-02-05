@@ -140,6 +140,11 @@ class AVLNode(object):
 	def is_real_node(self):
 		return False
 
+	def is_leaf(self):
+		if not self.left.is_real_node() and not self.right.is_real_node():
+			return True
+		return False
+
 
 
 """
@@ -166,8 +171,8 @@ class AVLTree(object):
 	@returns: the AVLNode corresponding to key or None if key is not found.
 	"""
 	def search(self, key):
-
 		return None
+
 
 
 	"""inserts val at position i in the dictionary
