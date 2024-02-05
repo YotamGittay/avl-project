@@ -278,12 +278,3 @@ class AVLTree(object):
 		return None
 	
 
-
-
-
-	node1 = AVLNode(2, "a")
-	node2 = AVLNode(3, "b")
-
-	root = AVLNode(4, "c")
-
-	root.
