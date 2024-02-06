@@ -189,9 +189,9 @@ class AVLTree(object):
 	Constructor, you are allowed to add more fields.  
 
 	"""
-	def __init__(self):
+	def __init__(self):  # probebly needs to add more fields
 		self.root = None
-		# add your fields here
+		self.size = 0
 
 
 
@@ -202,7 +202,7 @@ class AVLTree(object):
 	@rtype: AVLNode
 	@returns: the AVLNode corresponding to key or None if key is not found.
 	"""
-	def search(self, key):
+	def search(self, key):  
 		return self.binary_search(self.root, key)
 
 	def binary_search(self, node, key):
@@ -215,16 +215,16 @@ class AVLTree(object):
 		return self.binary_search(node.left, key)
 
 
-	def successor(self, node):
-		if not node.is_real_node():
+	def successor(self, node):  # returns successor of node
+		if not node.is_real_node():  # if node is virtual
 			return None
-		if node.get_right().is_real_node():
+		if node.get_right().is_real_node():  # if node has right child
 			curr = node.get_right()
-			while curr.left.is_real_node():
+			while curr.left.is_real_node(): 
 				curr = curr.get_left()
 			return curr
-		parent = node.get_parent()
-		while parent != None and parent.right == node:
+		parent = node.get_parent()  # if node doesnt have right chile 
+		while parent != None and parent.right == node:  
 			node = parent
 			parent = parent.get_parent()
 		return parent
@@ -261,7 +261,7 @@ class AVLTree(object):
 		else:
 			parent = self.deleteBySuccessor(node)
 		self.update_ancestors_heights(parent)
-		# test
+		# test1
 
 	def deleteLeaf(self, node):
 		if node == self.root:
