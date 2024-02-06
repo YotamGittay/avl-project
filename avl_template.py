@@ -178,6 +178,21 @@ class AVLNode(object):
 		return False
 
 
+	def is_criminal(self): # checks if a node is avl criminal, means its bf > 1 or < -1 
+		bf = self.get_bf
+		if bf < -1 or bf > 1:
+			return True
+		return False
+	
+	def rotate_right(self): # needs to complete
+		pass
+
+	def rotate_lefr(self): # needs to complete
+		pass
+
+	def what_rotate(self): # finds out what kind of rotation needs to be done
+		pass 
+
 
 """
 A class implementing the ADT Dictionary, using an AVL tree.
@@ -189,7 +204,7 @@ class AVLTree(object):
 	Constructor, you are allowed to add more fields.  
 
 	"""
-	def __init__(self):  # probebly needs to add more fields
+	def __init__(self):  # probebly need to add more fields
 		self.root = None
 		self.size = 0
 
@@ -228,6 +243,7 @@ class AVLTree(object):
 			node = parent
 			parent = parent.get_parent()
 		return parent
+	
 
 
 	"""inserts val at position i in the dictionary
@@ -240,8 +256,27 @@ class AVLTree(object):
 	@rtype: int
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
-	def insert(self, key, val):
-		return -1
+	def insert(self, key, val): 
+		# find where to insert new node 
+		curr = self.root
+		while curr.is_real_node():
+			if key < curr.get_key():
+				curr = curr.get_left()
+			elif key > curr.get_key():
+				curr = curr.get_right()
+		# insert new node
+		curr = AVLNode(key, val)
+		# rebalance
+		suspect = curr.get_parent()
+		rotations = 0
+		while suspect.is_criminal():
+			temp = suspect.rebalance()
+			if temp > 0:
+				rotations += temp
+				break
+			suspect = suspect.get_parent()
+		return rotations
+
 
 
 	"""deletes node from the dictionary
