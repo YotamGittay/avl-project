@@ -4,6 +4,9 @@
 #id2      - complete info
 #name2    - complete info  
 
+from typing import Optional
+
+
 
 
 """A class represnting a node in an AVL tree"""
@@ -21,6 +24,8 @@ class AVLNode(object):
 		self.left = None
 		self.right = None
 		self.parent = None
+		if key == None:  # check if node is virtual
+			isFake = True
 		if isFake: # if node is virtual
 			self.size = 0
 			self.height = -1
@@ -33,7 +38,7 @@ class AVLNode(object):
 	@rtype: AVLNode
 	@returns: the left child of self, None if there is no left child (if self is virtual)
 	"""
-	def get_left(self):
+	def get_left(self) -> 'Optional[AVLNode]':
 		return self.left
 
 
@@ -43,7 +48,7 @@ class AVLNode(object):
 	@rtype: AVLNode
 	@returns: the right child of self, None if there is no right child (if self is virtual)
 	"""
-	def get_right(self): 
+	def get_right(self) -> 'Optional[AVLNode]':  
 		return self.right
 
 
@@ -173,7 +178,7 @@ class AVLNode(object):
 		@returns: True if self is a leaf , False otherwise 
 	"""
 	def is_leaf(self):
-		if not self.left.is_real_node() and not self.right.is_real_node():
+		if((not self.left.is_real_node()) and (not self.right.is_real_node())):
 			return True
 		return False
 
@@ -184,11 +189,37 @@ class AVLNode(object):
 			return True
 		return False
 	
-	def rotate_right(self): # needs to complete
-		pass
+	def what_child(self): # checks what child is the node to its father (left or right)
+		if self.get_parent() == None: # node has no father
+			return None
+		if self.get_parent().get_left() == self:
+			return "L"
+		if self.get_parent().get_right() == self:
+			return "R"
+		
+	
+	def rotate_right(self, other : 'AVLNode'): # need to check end cases
+		self.set_left(other.get_right()) # b.left <- a.right
+		self.get_left().set_parent(self) # b.left.parent <- b
+		other.set_right(self) # a.right <- b
+		other.set_parent(self.get_parent) # a.parent <- b.parent
+		if self.what_child() == "L":  # a.parent.left/right <- a
+			self.get_parent().set_left(self)
+		if self.what_child() == "R":
+			self.get_parent().set_right(self)
+		self.set_parent(other) # b.parent <- other
 
-	def rotate_lefr(self): # needs to complete
-		pass
+
+	def rotate_lefr(self, other : 'AVLNode'): 
+		self.set_right(other.get_left()) # b.right <- a.left
+		self.get_right().set_parent(self) # b.right.parent <- b
+		other.set_left(self) # a.left <- b
+		other.set_parent(self.get_parent) # a.parent <- b.parent
+		if self.what_child() == "L":  # a.parent.left/right <- a
+			self.get_parent().set_left(self)
+		if self.what_child() == "R":
+			self.get_parent().set_right(self)
+		self.set_parent(other) # b.parent <- other
 
 	def what_rotate(self): # finds out what kind of rotation needs to be done
 		pass 
@@ -276,6 +307,9 @@ class AVLTree(object):
 				break
 			suspect = suspect.get_parent()
 		return rotations
+	
+	def rebalance(self, node):
+		pass
 
 
 
@@ -375,4 +409,8 @@ class AVLTree(object):
 	def get_root(self):
 		return None
 	
+
+
+
+
 
