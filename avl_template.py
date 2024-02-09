@@ -376,6 +376,60 @@ class AVLTree(object):
 				rotations += 2
 		return rotations
 
+	def right_rotation(self, B):
+		# according to slide 55 on presentation
+		parent = B.get_parent()
+		A = B.get_left()
+		AR = A.get_right()
+		# put AR
+		AR.set_parent(B)
+		B.set_left(AR)
+		# put B
+		B.set_parent(A)
+		A.set_right(B)
+		if parent != None:
+			if parent.get_right() == B:
+				parent.set_right(A)
+			else:
+				parent.set_left(A)
+		else:
+			# node was root
+			self.set_root(A)
+		A.set_parent(parent)
+		# fix heights
+		A.fix_height()
+		B.fix_height()
+		# fix sizes
+		A.fix_size()
+		B.fix_size()
+
+	def left_rotation(self, B):
+		# according to slide 55 on presentation
+		parent = B.get_parent()
+		A = B.get_right()
+		AL = A.get_left()
+		# put AL
+		AL.set_parent(B)
+		B.set_right(AL)
+		# put B
+		B.set_parent(A)
+		A.set_left(B)
+		if parent != None:
+			if parent.get_right() == B:
+				parent.set_right(A)
+			else:
+				parent.set_left(A)
+		else:
+			# node was root
+			self.set_root(A)
+		A.set_parent(parent)
+		# fix heights
+		A.fix_height()
+		B.fix_height()
+		# fix sizes
+		A.fix_size()
+		B.fix_size()
+
 	"""deletes node from the dictionary
 
 	@type node: AVLNode
@@ -404,20 +458,22 @@ class AVLTree(object):
 		counter = 0
 		if balance_factor == 2:
 			if parent.get_left().get_bf() in [0,1]:
+				self.right_rotation(parent)
 				counter += 1
-				parent.rotate_right(parent.get_left())
 			else:
+
+				self.left_rotation(parent.get_left())
+				self.right_rotation(parent)
 				counter += 2
-				parent.get_left().rotate_left(parent.get_left().get_right())
-				parent.rotate_right(parent.get_left())
 		else:
 			if parent.get_left().get_bf() in [0,-1]:
+				self.left_rotation(parent)
 				counter += 1
-				parent.left_rotation(parent.get_right())
 			else:
+
+				self.right_rotation(parent.get_right())
+				self.left_rotation(parent)
 				counter += 2
-				parent.get_right().rotate_right(parent.get_right().get_left())
-				parent.rotate_left(parent.get_right())
 		return counter
 
 	def delete_BST(self, node):
@@ -571,6 +627,9 @@ class AVLTree(object):
 	"""
 	def get_root(self):
 		return self.root
+
+	def set_root(self, root):
+		self.root = root
 
 	def print_tree(self):
 		"""Prints the AVL tree."""
