@@ -264,9 +264,8 @@ class AVLTree(object):
 
 	def deleteLeaf(self, node):
 		if node == self.root:
-			# delete root
+			# delete root, not supposed to happen but just in case
 			self.root = None
-
 		parent = node.parent
 		fake_node = AVLNode()
 		if parent.getLeft() == node:
