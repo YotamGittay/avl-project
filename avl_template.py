@@ -29,11 +29,13 @@ class AVLNode(object):
 		if key is None:  # check if node is virtual
 			self.size = 0
 			self.height = -1
+			self.last_height = -1
 			self.left = None
 			self.right = None
 		else: # if node is real
 			self.size = 1
 			self.height = 0
+			self.last_height = 0
 		
 
 	"""returns the left child
@@ -159,6 +161,7 @@ class AVLNode(object):
 	@param h: the height
 	"""
 	def set_height(self, h):
+		self.last_height = self.height
 		self.height = h
 
 	def set_size(self, size):
@@ -318,7 +321,6 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, key, val): # what if key is in the tree already?
-		print("inserting node: ", "key: ", key )
 		new_node = AVLNode(key, val)
 		# find where to insert new node 
 		if self.root == None:
@@ -353,9 +355,6 @@ class AVLTree(object):
 			suspect = suspect.get_parent()
 		return rotations
 
-
-	
-
 	def rebalance(self, node : 'AVLNode'):
 		rotations = 0
 		if node.get_bf() == 2: # node is left heavy
@@ -377,11 +376,6 @@ class AVLTree(object):
 				rotations += 2
 		return rotations
 
-
-
-
-
-
 	"""deletes node from the dictionary
 
 	@type node: AVLNode
@@ -389,16 +383,42 @@ class AVLTree(object):
 	@rtype: int
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
-
 	def delete(self, node):
 		pysicallyDeletedParent = self.delete_BST(node)
 		parent = pysicallyDeletedParent
 		counter = 0
 		while parent!= None and parent.is_real_node():
+			balance_factor = node.get_bf()
+			if abs(balance_factor) < 2 and parent.get_last_height() == parent.height():
+				return counter
+			elif abs(balance_factor) < 2 and parent.get_last_height() != parent.height():
+				parent = parent.get_parent()
+			else:
+				next_parent = parent.get_parent()
+				counter += self.rebalance_delete(parent)
+				parent = parent.next_parent
+		return counter
 
-			counter += self.rebalance(parent)
-			parent = parent.get_parent()
-
+	def rebalance_delete(self, parent):
+		balance_factor = parent.get_bf()
+		counter = 0
+		if balance_factor == 2:
+			if parent.get_left().get_bf() in [0,1]:
+				counter += 1
+				parent.rotate_right(parent.get_left())
+			else:
+				counter += 2
+				parent.get_left().rotate_left(parent.get_left().get_right())
+				parent.rotate_right(parent.get_left())
+		else:
+			if parent.get_left().get_bf() in [0,-1]:
+				counter += 1
+				parent.left_rotation(parent.get_right())
+			else:
+				counter += 2
+				parent.get_right().rotate_right(parent.get_right().get_left())
+				parent.rotate_left(parent.get_right())
+		return counter
 
 	def delete_BST(self, node):
 		if node == None or not node.is_real_node():
@@ -491,8 +511,6 @@ class AVLTree(object):
 			self.root = successor
 		return successorParent
 
-
-
 	def update_ancestors_heights(self, node):
 		parent = node
 		while parent != None and parent.is_real_node():
@@ -514,7 +532,7 @@ class AVLTree(object):
 	@returns: the number of items in dictionary 
 	"""
 	def size(self):
-		return -1	
+		return self.root.get_size()
 
 	
 	"""splits the dictionary at the i'th index
@@ -546,14 +564,13 @@ class AVLTree(object):
 	def join(self, tree2, key, val):
 		return None
 
-
 	"""returns the root of the tree representing the dictionary
 
 	@rtype: AVLNode
 	@returns: the root, None if the dictionary is empty
 	"""
 	def get_root(self):
-		return None
+		return self.root
 
 	def print_tree(self):
 		"""Prints the AVL tree."""
