@@ -286,6 +286,10 @@ class AVLTree(object):
 			return self.binary_search(node.right, key)
 		return self.binary_search(node.left, key)
 
+	def delete_by_key(self, key):
+		node = self.search(key)
+		self.delete(node)
+
 
 	def successor(self, node):  # returns successor of node
 		if not node.is_real_node():  # if node is virtual
@@ -338,7 +342,7 @@ class AVLTree(object):
 					curr = curr.get_right()
 
 		self.update_ancestors_heights(new_node)
-		# # rebalance
+		# rebalance
 		suspect = curr.get_parent()
 		rotations = 0
 		while suspect != None and suspect.is_criminal():
@@ -385,35 +389,115 @@ class AVLTree(object):
 	@rtype: int
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
+
 	def delete(self, node):
-		if not node.is_real_node() or node == None:
+		pysicallyDeletedParent = self.delete_BST(node)
+		parent = pysicallyDeletedParent
+		counter = 0
+		while parent!= None and parent.is_real_node():
+
+			counter += self.rebalance(parent)
+			parent = parent.get_parent()
+
+
+	def delete_BST(self, node):
+		if node == None or not node.is_real_node():
 			return
 		if node.is_leaf():
-			parent = self.deleteLeaf(node)
-		elif not node.get_right.is_real_node() or not node.get_right.is_real_node():
-			parent = self.deleteEasy(node)
+			parent = self.delete_leaf(node)
+		elif not node.get_right().is_real_node() or not node.get_right().is_real_node():
+			parent = self.delete_easy(node)
 		else:
-			parent = self.deleteBySuccessor(node)
+			parent = self.delete_by_successor(node)
 		self.update_ancestors_heights(parent)
 
-	def deleteLeaf(self, node):
+
+	def delete_leaf(self, node):
+		if node == None or not node.is_real_node():
+			return
 		if node == self.root:
 			# delete root, not supposed to happen but just in case
 			self.root = None
-		parent = node.parent
-		fake_node = AVLNode()
-		if parent.getLeft() == node:
-			parent.setLeft(fake_node)
+		parent = node.get_parent()
+		fake_node = AVLNode(None, None)
+		if parent.get_left() == node:
+			parent.set_left(fake_node)
 		else:
-			# right node
-			parent.setRight(fake_node)
+			parent.set_right(fake_node)
+		return parent
+
+	def delete_easy(self, node):
+		if node == None or not node.is_real_node():
+			return
+		parent = node.parent
+		if not node.get_left().is_real_node():
+			# doesn't have left child
+			child = node.get_right()
+			if parent.get_left() == node:
+				parent.set_left(child)
+				child.set_parent(parent)
+				# remove node parent and child
+				node.set_parent(None)
+				node.set_right(AVLNode(None, None))
+			else:
+				parent.set_right(child)
+				child.set_parent(parent)
+				# remove node parent and child
+				node.set_parent(None)
+				node.set_left(AVLNode(None, None))
+		else:
+			# doesn't have right child
+			child = node.get_left()
+			if parent.get_left() == node:
+				parent.set_left(child)
+				child.set_parent(parent)
+				# remove node parent and child
+				node.set_parent(None)
+				node.set_left(AVLNode(None, None))
+			else:
+				parent.set_left(child)
+				child.set_parent(parent)
+				# remove node parent and child
+				node.set_parent(None)
+				node.set_left(AVLNode(None, None))
+		# change attributes of nodes
+		node.set_height(0)
+		return child.parent
+
+	def delete_by_successor(self, node):
+		successor = self.successor(node)
+		successorParent = successor.get_parent()
+		isRoot = node == self.root
+		# delete successor
+		self.delete(successor)
+		# connect successor to the node
+		successor.set_parent(node.get_parent())
+		successor.set_right(node.get_right())
+		successor.set_left(node.get_left())
+		successor.set_height(node.get_height())
+		# connect successor to parent
+		if node.get_parent() != None and node.get_parent().is_real_node():
+			if node.get_parent().get_left() == node:
+				node.get_parent().set_left(successor)
+			else:
+				node.get_parent().set_right(successor)
+		# disconnect node
+		node.set_parent(None)
+		node.set_right(AVLNode(None, None))
+		node.set_left(AVLNode(None, None))
+		node.set_height(0)
+		# check if root
+		if isRoot:
+			self.root = successor
+		return successorParent
+
+
 
 	def update_ancestors_heights(self, node):
 		parent = node
 		while parent != None and parent.is_real_node():
 			parent.fix_height()
 			parent = parent.get_parent()
-
 
 
 	"""returns an array representing dictionary 
@@ -423,7 +507,6 @@ class AVLTree(object):
 	"""
 	def avl_to_array(self):
 		return None
-
 
 	"""returns the number of items in dictionary 
 
