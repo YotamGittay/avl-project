@@ -26,9 +26,11 @@ class AVLNode(object):
 			self.left = AVLNode(None, None)
 			self.right = AVLNode(None, None)
 		self.parent = None
-		if key == None:  # check if node is virtual
+		if key is None:  # check if node is virtual
 			self.size = 0
 			self.height = -1
+			self.left = None
+			self.right = None
 		else: # if node is real
 			self.size = 1
 			self.height = 0
@@ -230,7 +232,6 @@ class AVLNode(object):
 
 		############################################### IGNORE- JUST FOR TESTS
 
-		
 
 
 """
@@ -306,17 +307,18 @@ class AVLTree(object):
 			return None
 		while curr.key is not None:  # while node is real
 			if key < curr.get_key():
-				if curr.get_left().is_real_node():
+				if not curr.get_left().is_real_node():
 					curr.set_left(new_node)
 					break
 				else: 
 					curr = curr.get_left()
 			elif key > curr.get_key():
-				if curr.get_right().is_real_node():
+				if not curr.get_right().is_real_node():
 					curr.set_right(new_node)
 					break
 				else:
 					curr = curr.get_right()
+		self.update_ancestors_heights(new_node)
 		# rebalance
 		suspect = curr
 		rotations = 0
@@ -452,26 +454,7 @@ class AVLTree(object):
 
 #### IGNORE
 	
-	def print_tree(self, node=None, depth=0, prefix="Root:"):
-		if node is None and depth == 0:
-			node = self.root
-
-		if node is not None and node.key is not None:  # Check if node is real and not a virtual node
-			print(f"{'  ' * depth}{prefix} [Key: {node.key}, Value: {node.value}, Height: {node.height}]")
-			if node.left is not None:  # If left child exists, recursively print left subtree
-				self.print_tree(node.left, depth + 1, prefix="L---")
-			if node.right is not None:  # If right child exists, recursively print right subtree
-				self.print_tree(node.right, depth + 1, prefix="R---")
-
 	
-
-
-
-
-################################################ ignore this part
-
-
-
 
 
 
