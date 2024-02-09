@@ -6,11 +6,13 @@ tree = AVLTree()
 # Constants for random number generation
 MIN_KEY = 1
 MAX_KEY = 1000
-NUM_NODES = 10
+NODES= [5,2,6,8]
 
 # Generate and insert 50 random nodes
-for i in range(NUM_NODES):
-    key = i
-    tree.insert(key, value)
+for i in range(len(NODES)):
+    key = NODES[i]
+    tree.insert(key, "")
+    tree.print_tree()
 
-tree._print_tree()
+
+

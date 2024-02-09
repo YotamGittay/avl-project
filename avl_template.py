@@ -99,10 +99,11 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def set_left(self, node):  # sets left son of current node
-		self.left = node
-		node.set_parent(self)
-		self.fix_size()  # fix the size of current node
-		self.fix_height()   # fix the height of current node
+		if self.is_real_node():
+			self.left = node
+			node.set_parent(self)
+			self.fix_size()  # fix the size of current node
+			self.fix_height()   # fix the height of current node
 
 
 
@@ -112,17 +113,18 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def set_right(self, node : 'AVLNode'):
-		self.right = node
-		node.set_parent(self)
-		self.fix_size()
-		self.fix_height()
+		if self.is_real_node():
+			self.right = node
+			node.set_parent(self)
+			self.fix_size()
+			self.fix_height()
 
 	def fix_size(self):
 		new_size = 1 + self.get_left().get_size() + self.get_right().get_size()
 		self.set_size(new_size)
 
 	def fix_height(self):
-		self.set_height(max(self.left.height, self.right.height) + 1)
+		self.set_height(max(self.get_left().get_height() + 1, self.get_right().get_height() +1))
 
 	"""sets parent
 
@@ -169,7 +171,7 @@ class AVLNode(object):
 	@returns: False if self is a virtual node, True otherwise.
 	"""
 	def is_real_node(self):
-		if self.get_key == None:
+		if self.get_key() == None:
 			return False
 		return True
 
@@ -230,12 +232,22 @@ class AVLNode(object):
 			self.get_parent().set_right(self)
 		self.set_parent(other) # b.parent <- other
 
+	def print_node(self):
+		"""Prints the details of the AVL node."""
+		if self.is_real_node():
+			print("Key:", self.key)
+			print("Value:", self.value)
+			print("Height:", self.height)
+			print("BF:", self.get_bf())
+			print("Size:", self.size)
+			print("Parent:", self.parent.key if self.parent else None)
+			print("Left Child:", self.left.key if self.left.is_real_node() else None)
+			print("Right Child:", self.right.key if self.right.is_real_node() else None)
+		else:
+			print("Virtual Node")
 
 
 
-
-
-		############################################### IGNORE- JUST FOR TESTS
 
 
 
@@ -302,6 +314,7 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, key, val): # what if key is in the tree already?
+		print("inserting node: ", "key: ", key )
 		new_node = AVLNode(key, val)
 		# find where to insert new node 
 		if self.root == None:
@@ -315,7 +328,7 @@ class AVLTree(object):
 				if not curr.get_left().is_real_node():
 					curr.set_left(new_node)
 					break
-				else: 
+				else:
 					curr = curr.get_left()
 			elif key > curr.get_key():
 				if not curr.get_right().is_real_node():
@@ -323,22 +336,25 @@ class AVLTree(object):
 					break
 				else:
 					curr = curr.get_right()
+
 		self.update_ancestors_heights(new_node)
-		# rebalance
-		suspect = curr
+		# # rebalance
+		suspect = curr.get_parent()
 		rotations = 0
-		while suspect.is_criminal():
-			temp = suspect.rebalance() # rebalance node and return the number of rotations
+		while suspect != None and suspect.is_criminal():
+			temp = self.rebalance(suspect) # rebalance node and return the number of rotations
 			if temp > 0:
 				rotations += temp
 				break # break atfer first rotate
 			suspect = suspect.get_parent()
 		return rotations
+
+
 	
 
 	def rebalance(self, node : 'AVLNode'):
 		rotations = 0
-		if node.get_bf == 2: # node is left heavy
+		if node.get_bf() == 2: # node is left heavy
 			if node.get_left().get_bf() == 1: # left chile of node is left heavy
 				node.rotate_right(node.get_left())
 				rotations += 1
@@ -347,7 +363,7 @@ class AVLTree(object):
 				node.rotate_right(node.get_left())
 				rotations += 2
 
-		elif node.get_bf == -2: # node is right heavy
+		elif node.get_bf() == -2: # node is right heavy
 			if node.get_right().get_bf() == -1: # right child of node is right heavy
 				node.rotate_left(node.get_left())
 				rotations += 1
@@ -355,6 +371,7 @@ class AVLTree(object):
 				node.get_left().rotate_right(node.get_right().get_left)
 				node.rotate_left(node.get_right())
 				rotations += 2
+		return rotations
 
 
 
@@ -455,41 +472,14 @@ class AVLTree(object):
 	def get_root(self):
 		return None
 
-	def _print_tree(self):
+	def print_tree(self):
 		"""Prints the AVL tree."""
-		self._print_tree_recursive(self.root, 0)
+		self.print_tree_recursive(self.root, 0)
 
-	def _print_tree_recursive(self, node, depth):
+	def print_tree_recursive(self, node, depth):
 		"""Recursive helper function for printing the AVL tree."""
 		if node is not None and node.is_real_node():
-			self._print_tree_recursive(node.get_right(), depth + 1)
-			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()))
-			self._print_tree_recursive(node.get_left(), depth + 1)
-	
+			self.print_tree_recursive(node.get_right(), depth + 1)
+			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()) + " (Height: " + str(node.get_height()) + ")" + " (BF: " + str(node.get_bf()) + ")"  )
+			self.print_tree_recursive(node.get_left(), depth + 1)
 
-#### IGNORE
-	
-	
-
-
-
-tree = AVLTree()
-
-
-
-# Constants for random number generation
-MIN_KEY = 1
-MAX_KEY = 1000
-NUM_NODES = 50
-
-# Generate and insert 50 random nodes
-for _ in range(NUM_NODES):
-    # Generate a random key and value
-    key = random.randint(MIN_KEY, MAX_KEY)
-    value = f"Value for key {key}"  # Example value format
-
-    # Insert the new node into the AVL tree
-    tree.insert(key, value)
-
-print(tree.root.key)
-tree.print_tree()
