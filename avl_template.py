@@ -172,9 +172,14 @@ class AVLNode(object):
 		if self.get_key == None:
 			return False
 		return True
-	
+
+	def get_height(self):
+		return self.height
+
 	def get_bf(self):
-		return self.get_left().get_height() - self.get_right().get_height()
+		if self.is_real_node():
+			return self.get_left().get_height() - self.get_right().get_height()
+		return 0
 
 	"""returns whether self is a leaf 
 
@@ -389,7 +394,7 @@ class AVLTree(object):
 	def update_ancestors_heights(self, node):
 		parent = node
 		while parent != None and parent.is_real_node():
-			parent.fix_heights()
+			parent.fix_height()
 			parent = parent.get_parent()
 
 
