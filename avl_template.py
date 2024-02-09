@@ -447,6 +447,17 @@ class AVLTree(object):
 	"""
 	def get_root(self):
 		return None
+
+	def _print_tree(self):
+		"""Prints the AVL tree."""
+		self._print_tree_recursive(self.root, 0)
+
+	def _print_tree_recursive(self, node, depth):
+		"""Recursive helper function for printing the AVL tree."""
+		if node is not None and node.is_real_node():
+			self._print_tree_recursive(node.get_right(), depth + 1)
+			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()))
+			self._print_tree_recursive(node.get_left(), depth + 1)
 	
 
 #### IGNORE
@@ -488,7 +499,7 @@ for _ in range(NUM_NODES):
     # Generate a random key and value
     key = random.randint(MIN_KEY, MAX_KEY)
     value = f"Value for key {key}"  # Example value format
-    
+
     # Insert the new node into the AVL tree
     tree.insert(key, value)
 
