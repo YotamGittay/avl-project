@@ -634,7 +634,46 @@ class AVLTree(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def join(self, tree2, key, val):
-		pass
+		separate_node = AVLNode(key, val)
+		sm_tree = AVLTree()
+		bg_tree = AVLTree()
+		
+		# Determine the smaller and bigger tree
+		if self.root.size >= tree2.root.size:
+			bg_tree, sm_tree = self, tree2
+		else:
+			bg_tree, sm_tree = tree2, self
+
+		# Traverse down the bigger tree to find the correct position
+		b = bg_tree.root
+		parent_b = None
+		while b and b.size >= sm_tree.root.size:
+			parent_b = b
+			b = b.get_left()
+
+		# Reconfigure the tree structure
+		if b:
+			separate_node.set_right(b)
+			b.set_parent(separate_node)
+		if parent_b:
+			parent_b.set_left(separate_node)
+		else:  # separate_node becomes new root
+			bg_tree.set_root(separate_node)
+
+		separate_node.set_left(sm_tree.root)
+		sm_tree.root.set_parent(separate_node)
+
+		# Rebalance the tree starting from separate_node upwards
+		rotations = 0
+		curr = separate_node
+		while curr:
+			rotations += bg_tree.rebalance(curr)
+			curr = curr.get_parent()
+
+		return bg_tree
+
+
+		
 
 
 
