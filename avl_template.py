@@ -90,7 +90,10 @@ class AVLNode(object):
 	"""
 	def get_height(self):
 		return self.height
-	
+
+	def get_last_height(self):
+		return self.last_height
+
 	def get_size(self):
 		return self.size
 
@@ -423,15 +426,15 @@ class AVLTree(object):
 		parent = pysicallyDeletedParent
 		counter = 0
 		while parent!= None and parent.is_real_node():
-			balance_factor = node.get_bf()
-			if abs(balance_factor) < 2 and parent.get_last_height() == parent.height():
+			balance_factor = parent.get_bf()
+			if abs(balance_factor) < 2 and parent.get_last_height() == parent.get_height():
 				return counter
-			elif abs(balance_factor) < 2 and parent.get_last_height() != parent.height():
+			elif abs(balance_factor) < 2 and parent.get_last_height() != parent.get_height():
 				parent = parent.get_parent()
 			else:
 				next_parent = parent.get_parent()
 				counter += self.rebalance_delete(parent)
-				parent = parent.next_parent
+				parent = next_parent
 		return counter
 
 	def rebalance_delete(self, parent):
@@ -442,7 +445,6 @@ class AVLTree(object):
 				self.right_rotation(parent)
 				counter += 1
 			else:
-
 				self.left_rotation(parent.get_left())
 				self.right_rotation(parent)
 				counter += 2
@@ -451,7 +453,6 @@ class AVLTree(object):
 				self.left_rotation(parent)
 				counter += 1
 			else:
-
 				self.right_rotation(parent.get_right())
 				self.left_rotation(parent)
 				counter += 2
@@ -467,14 +468,16 @@ class AVLTree(object):
 		else:
 			parent = self.delete_by_successor(node)
 		self.update_ancestors_heights(parent)
+		return parent
 
 
 	def delete_leaf(self, node):
 		if node == None or not node.is_real_node():
 			return
-		if node == self.root:
+		if node == self.get_root():
 			# delete root, not supposed to happen but just in case
 			self.root = None
+			return
 		parent = node.get_parent()
 		fake_node = AVLNode(None, None)
 		if parent.get_left() == node:
@@ -572,10 +575,6 @@ class AVLTree(object):
 		array = []
 		avl_to_array_rec(self.get_root(), array)
 		return array
-	
-
-
-	
 
 
 	"""returns the number of items in dictionary 
