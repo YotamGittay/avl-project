@@ -243,8 +243,8 @@ class AVLTree(object):
 	Constructor, you are allowed to add more fields.  
 
 	"""
-	def __init__(self):  # probebly need to add more fields
-		self.root = None
+	def __init__(self, root = None):  # probebly need to add more fields
+		self.root = root
 		self.size = 0
 
 
@@ -299,7 +299,7 @@ class AVLTree(object):
 	@rtype: int
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
-	def insert(self, key, val): # what if key is in the tree already?
+	def insert(self, key, val):  # still has some issues with large trees, cand find problem
 
 		# find where to insert new node 
 		if self.root == None:
@@ -307,11 +307,11 @@ class AVLTree(object):
 			return 0
 		
 		curr = self.root
-		parent = None 
-		while curr.is_real_node():  # while node is real
+		parent = None # To keep track of the parent for the new insertion
+		while curr.is_real_node():  
 			parent = curr
-			if key == curr.get_key():
-				break
+			if key == curr.get_key(): # Update the value if the key already exists
+				return 0
 			if key < curr.get_key():
 				curr = curr.left
 			elif key > curr.get_key():
@@ -323,15 +323,13 @@ class AVLTree(object):
 		else:
 			parent.set_right(new_node)
 
-		# rebalance
+		# rebalance from the new node to the root, if needed
 		self.update_ancestors_heights(new_node)
 		suspect = parent
 		rotations = 0
 		while suspect != None:
 			temp = self.rebalance(suspect) # rebalance node and return the number of rotations
 			rotations += temp
-			if temp > 0: # break after first rotation
-				break
 			suspect = suspect.get_parent()
 		return rotations
 
@@ -341,19 +339,19 @@ class AVLTree(object):
 	def rebalance(self, node : 'AVLNode'):
 		rotations = 0
 		if node.get_bf() == 2: # node is left heavy
-			if node.get_left().get_bf() in [0,1]: # left chile of node is left heavy
+			if node.get_left().get_bf() >= 0: # left chile of node is left heavy
 				self.right_rotation(node)
 				rotations += 1
-			elif node.get_left().get_bf() in [-1,0]: # left child of node is right heavy
+			elif node.get_left().get_bf() <= 0: # left child of node is right heavy
 				self.left_rotation(node.get_left())
 				self.right_rotation(node)
 				rotations += 2
 
 		elif node.get_bf() == -2: # node is right heavy
-			if node.get_right().get_bf() in [-1,0]: # right child of node is right heavy
+			if node.get_right().get_bf() <= 0: # right child of node is right heavy
 				self.left_rotation(node)
 				rotations += 1
-			elif node.get_right().get_bf() in [0,1]: # right child of node is left heavy
+			elif node.get_right().get_bf() >= 0: # right child of node is left heavy
 				self.right_rotation(node.get_right())
 				self.left_rotation(node)
 				rotations += 2
@@ -562,8 +560,23 @@ class AVLTree(object):
 	@rtype: list
 	@returns: a sorted list according to key of touples (key, value) representing the data structure
 	"""
-	def avl_to_array(self):
-		return None
+	def avl_to_array(self): 
+		#recursive helper- append (key, value) pairs in order of keys
+		def avl_to_array_rec(node : 'AVLNode', array): 
+			if node is None or not node.is_real_node():
+				return
+			avl_to_array_rec(node.get_left(), array)
+			array.append((node.get_key(), node.get_value()))
+			avl_to_array_rec(node.get_right(), array)
+
+		array = []
+		avl_to_array_rec(self.get_root(), array)
+		return array
+	
+
+
+	
+
 
 	"""returns the number of items in dictionary 
 
@@ -584,8 +597,28 @@ class AVLTree(object):
 	dictionary smaller than node.key, right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
 	"""
-	def split(self, node):
-		return None
+	def split(self, node : 'AVLNode'): # using joins
+		sm_tree = AVLTree()
+		bg_tree = AVLTree()
+
+		sm_tree.join(AVLTree(node.get_left)) # seperate left and right subtrees of node
+		bg_tree.join(AVLTree(node.get_right))
+
+		curr = node
+		while curr is not None: # split rest of the tree 
+			parent = curr.get_parent()
+			if curr.what_child() is None: # made it to the root
+				return
+			if curr.what_child() == "R": # if curr is right child to its father
+				parent.set_right(AVLNode(None, None)) # disconnect father from right child
+				sm_tree.insert(parent) 
+				sm_tree.join(AVLTree(parent.get_left()))
+			if curr.what_child() == "L": # if curr is left child of its father
+				parent.set_left(AVLNode(None, None)) # disconnect father from left child
+				bg_tree.insert(parent)
+				bg_tree.join(AVLTree(parent.get_right()))
+
+		
 
 	
 	"""joins self with key and another AVLTree
@@ -601,7 +634,9 @@ class AVLTree(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def join(self, tree2, key, val):
-		return None
+		pass
+
+
 
 	"""returns the root of the tree representing the dictionary
 
@@ -624,4 +659,33 @@ class AVLTree(object):
 			self.print_tree_recursive(node.get_right(), depth + 1)
 			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()) + " (Height: " + str(node.get_height()) + ")" + " (BF: " + str(node.get_bf()) + ")"  )
 			self.print_tree_recursive(node.get_left(), depth + 1)
+
+
+
+	def is_avl(self):
+		def is_avl_tree_rec(node : 'AVLNode', bf, keys):
+			if node is None or not node.is_real_node():
+				return
+			
+			is_avl_tree_rec(node.left , bf, keys)
+			bf.append(node.get_bf())
+			keys.append(node.get_key())
+			is_avl_tree_rec(node.right, bf, keys)
+		
+		bf = []
+		keys = []
+		is_avl_tree_rec(self.get_root(), bf, keys)
+
+		is_balnced = True
+		for k in bf:
+			if abs(k) > 1:
+				is_balnced = False
+				break
+		
+		
+		is_bst = all(keys[i] <= keys[i+1] for i in range(len(keys)-1))
+
+		return is_balnced and is_bst
+	
+
 
