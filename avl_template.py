@@ -211,29 +211,7 @@ class AVLNode(object):
 		if self.get_parent().get_right() == self:
 			return "R"
 		
-	
-	def rotate_right(self, other : 'AVLNode'): # need to check end cases
-		self.set_left(other.get_right()) # b.left <- a.right
-		self.get_left().set_parent(self) # b.left.parent <- b
-		other.set_right(self) # a.right <- b
-		other.set_parent(self.get_parent) # a.parent <- b.parent
-		if self.what_child() == "L":  # a.parent.left/right <- a
-			self.get_parent().set_left(self)
-		if self.what_child() == "R":
-			self.get_parent().set_right(self)
-		self.set_parent(other) # b.parent <- other
 
-
-	def rotate_left(self, other : 'AVLNode'): 
-		self.set_right(other.get_left()) # b.right <- a.left
-		self.get_right().set_parent(self) # b.right.parent <- b
-		other.set_left(self) # a.left <- b
-		other.set_parent(self.get_parent) # a.parent <- b.parent
-		if self.what_child() == "L":  # a.parent.left/right <- a
-			self.get_parent().set_left(self)
-		if self.what_child() == "R":
-			self.get_parent().set_right(self)
-		self.set_parent(other) # b.parent <- other
 
 	def print_node(self):
 		"""Prints the details of the AVL node."""
@@ -248,6 +226,7 @@ class AVLNode(object):
 			print("Right Child:", self.right.key if self.right.is_real_node() else None)
 		else:
 			print("Virtual Node")
+
 
 
 
@@ -321,58 +300,62 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, key, val): # what if key is in the tree already?
-		new_node = AVLNode(key, val)
+
 		# find where to insert new node 
 		if self.root == None:
 			self.root = AVLNode(key, val)
-			return None
+			return 0
+		
 		curr = self.root
-		if curr is None:
-			return None
-		while curr.key is not None:  # while node is real
+		parent = None 
+		while curr.is_real_node():  # while node is real
+			parent = curr
+			if key == curr.get_key():
+				break
 			if key < curr.get_key():
-				if not curr.get_left().is_real_node():
-					curr.set_left(new_node)
-					break
-				else:
-					curr = curr.get_left()
+				curr = curr.left
 			elif key > curr.get_key():
-				if not curr.get_right().is_real_node():
-					curr.set_right(new_node)
-					break
-				else:
-					curr = curr.get_right()
+				curr = curr.right
 
-		self.update_ancestors_heights(new_node)
+		new_node = AVLNode(key, val)
+		if key < parent.get_key():
+			parent.set_left(new_node)
+		else:
+			parent.set_right(new_node)
+
 		# rebalance
-		suspect = curr.get_parent()
+		self.update_ancestors_heights(new_node)
+		suspect = parent
 		rotations = 0
-		while suspect != None and suspect.is_criminal():
+		while suspect != None:
 			temp = self.rebalance(suspect) # rebalance node and return the number of rotations
-			if temp > 0:
-				rotations += temp
-				break # break atfer first rotate
+			rotations += temp
+			if temp > 0: # break after first rotation
+				break
 			suspect = suspect.get_parent()
 		return rotations
+
+
+
 
 	def rebalance(self, node : 'AVLNode'):
 		rotations = 0
 		if node.get_bf() == 2: # node is left heavy
-			if node.get_left().get_bf() == 1: # left chile of node is left heavy
-				node.rotate_right(node.get_left())
+			if node.get_left().get_bf() in [0,1]: # left chile of node is left heavy
+				self.right_rotation(node)
 				rotations += 1
-			elif node.get_left().get_bf() == -1: # left child of node is right heavy
-				node.get_left().rotate_left(node.get_left().get_right())
-				node.rotate_right(node.get_left())
+			elif node.get_left().get_bf() in [-1,0]: # left child of node is right heavy
+				self.left_rotation(node.get_left())
+				self.right_rotation(node)
 				rotations += 2
 
 		elif node.get_bf() == -2: # node is right heavy
-			if node.get_right().get_bf() == -1: # right child of node is right heavy
-				node.rotate_left(node.get_left())
+			if node.get_right().get_bf() in [-1,0]: # right child of node is right heavy
+				self.left_rotation(node)
 				rotations += 1
-			elif node.get_right().get_bf() == 1: # right child of node is left heavy
-				node.get_left().rotate_right(node.get_right().get_left)
-				node.rotate_left(node.get_right())
+			elif node.get_right().get_bf() in [0,1]: # right child of node is left heavy
+				self.right_rotation(node.get_right())
+				self.left_rotation(node)
 				rotations += 2
 		return rotations
 
