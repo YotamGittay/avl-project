@@ -81,7 +81,7 @@ def tester(SIZE = 100, num_of_trees = 100):
 nodes = [i for i in range(10)]
 tree = AVLTree()
 for k in nodes:
-    tree.insert(k,k)
+    tree.insert(k, k)
 print(tree.is_avl())
 
 for k in nodes:
@@ -90,5 +90,4 @@ for k in nodes:
     tree.print_tree()
     if not tree.is_avl():
         break
-    
-        
+
