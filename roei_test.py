@@ -1,7 +1,7 @@
-print("****")
+
 
 from avl_template import *
-
+"""""
 # Constants for random number generation
 MIN_KEY = 1
 MAX_KEY = 50
@@ -11,7 +11,7 @@ NODES= [i for i in range(40)]
 # Generate and insert 50 random nodes
 
 
-'''
+
 for i in range(2000):
     tree = AVLTree()
     keys = [random.randint(MIN_KEY, MAX_KEY) for j in range(13)]
@@ -21,7 +21,7 @@ for i in range(2000):
         print(keys)
     
 print("done! All good!")
-'''
+
 
 
 nodes1 = [random.randint(0, 100) for j in range(10)]
@@ -49,3 +49,46 @@ print(res.is_avl())
 
 
 
+
+nodes = [7, 32, 43, 16, 8, 38, 41, 50, 2, 23, 28, 9, 12]
+tree = AVLTree()
+for i in nodes:
+    tree.insert(i, "")
+
+tree.print_tree()
+"""""
+
+def tester(SIZE = 100, num_of_trees = 100):
+    for k in range(num_of_trees):
+        tree = AVLTree()
+        keys = [random.randint(0, 10000) for i in range(SIZE)]
+        for i in keys:
+            tree.insert(i, "")
+        if not tree.is_avl():
+            return False
+        print("insert is good!- tree number" + str(k))
+
+        for i in keys:
+            node = tree.search(i)
+            tree.delete(node)
+
+            if not tree.is_avl():
+                return False
+        
+    return True
+
+
+nodes = [i for i in range(10)]
+tree = AVLTree()
+for k in nodes:
+    tree.insert(k,k)
+print(tree.is_avl())
+
+for k in nodes:
+    node = tree.search(k)
+    tree.delete(node)
+    tree.print_tree()
+    if not tree.is_avl():
+        break
+    
+        
