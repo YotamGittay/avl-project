@@ -333,6 +333,8 @@ class AVLTree(object):
 		while suspect != None:
 			temp = self.rebalance(suspect) # rebalance node and return the number of rotations
 			rotations += temp
+			suspect.fix_height()
+			suspect.fix_size()
 			suspect = suspect.get_parent()
 		return rotations
 
