@@ -465,7 +465,7 @@ class AVLTree(object):
 			return
 		if node.is_leaf():
 			parent = self.delete_leaf(node)
-		elif not node.get_right().is_real_node() or not node.get_right().is_real_node():
+		elif not node.get_left().is_real_node() or not node.get_right().is_real_node():
 			parent = self.delete_easy(node)
 		else:
 			parent = self.delete_by_successor(node)
@@ -491,40 +491,54 @@ class AVLTree(object):
 	def delete_easy(self, node):
 		if node == None or not node.is_real_node():
 			return
-		parent = node.parent
+		# special case for root
+		if node == self.get_root():
+			if node.get_left().is_real_node():
+				child = node.get_left()
+				self.set_root(child)
+			else:
+				# node has right child
+				child = node.get_right()
+				self.set_root(child)
+			child.set_parent(None)
+			node.set_parent(None)
+			node.set_right(AVLNode(None, None))
+			return
+
+		parent = node.get_parent()
 		if not node.get_left().is_real_node():
 			# doesn't have left child
 			child = node.get_right()
 			if parent.get_left() == node:
 				parent.set_left(child)
-				child.set_parent(parent)
+				# child.set_parent(parent)
 				# remove node parent and child
 				node.set_parent(None)
 				node.set_right(AVLNode(None, None))
 			else:
 				parent.set_right(child)
-				child.set_parent(parent)
+				# child.set_parent(parent)
 				# remove node parent and child
 				node.set_parent(None)
-				node.set_left(AVLNode(None, None))
+				node.set_right(AVLNode(None, None))
 		else:
 			# doesn't have right child
 			child = node.get_left()
 			if parent.get_left() == node:
 				parent.set_left(child)
-				child.set_parent(parent)
+				# child.set_parent(parent)
 				# remove node parent and child
 				node.set_parent(None)
 				node.set_left(AVLNode(None, None))
 			else:
-				parent.set_left(child)
-				child.set_parent(parent)
+				parent.set_right(child)
+				# child.set_parent(parent)
 				# remove node parent and child
 				node.set_parent(None)
 				node.set_left(AVLNode(None, None))
 		# change attributes of nodes
 		node.set_height(0)
-		return child.parent
+		return parent
 
 	def delete_by_successor(self, node):
 		successor = self.successor(node)
@@ -602,8 +616,8 @@ class AVLTree(object):
 		sm_tree = AVLTree()
 		bg_tree = AVLTree()
 
-		sm_tree.join(AVLTree(node.get_left)) # seperate left and right subtrees of node
-		bg_tree.join(AVLTree(node.get_right))
+		sm_tree.join(AVLTree(node.get_left()), node.get_key(), node.get_value()) # seperate left and right subtrees of node
+		bg_tree.join(AVLTree(node.get_right()), node.get_key(), node.get_value())
 
 		curr = node
 		while curr is not None: # split rest of the tree 
@@ -612,16 +626,13 @@ class AVLTree(object):
 				return
 			if curr.what_child() == "R": # if curr is right child to its father
 				parent.set_right(AVLNode(None, None)) # disconnect father from right child
-				sm_tree.insert(parent) 
+				sm_tree.insert(parent)
 				sm_tree.join(AVLTree(parent.get_left()))
 			if curr.what_child() == "L": # if curr is left child of its father
 				parent.set_left(AVLNode(None, None)) # disconnect father from left child
 				bg_tree.insert(parent)
 				bg_tree.join(AVLTree(parent.get_right()))
 
-		
-
-	
 	"""joins self with key and another AVLTree
 
 	@type tree2: AVLTree 
@@ -640,15 +651,15 @@ class AVLTree(object):
 		bg_tree = AVLTree()
 		
 		# Determine the smaller and bigger tree
-		if self.root.size >= tree2.root.size:
+		if self.get_root().get_size() >= tree2.get_root().get_size():
 			bg_tree, sm_tree = self, tree2
 		else:
 			bg_tree, sm_tree = tree2, self
 
 		# Traverse down the bigger tree to find the correct position
-		b = bg_tree.root
+		b = bg_tree.get_root()
 		parent_b = None
-		while b and b.size >= sm_tree.root.size:
+		while b and b.get_size() >= sm_tree.get_root().get_size():
 			parent_b = b
 			b = b.get_left()
 
@@ -673,8 +684,48 @@ class AVLTree(object):
 
 		return bg_tree
 
+	def join2(self, tree2, key, val):
 
-		
+		new_node = AVLNode(key, val)
+		if (tree2 == None or tree2.get_root() == None):
+			self.insert(new_node)
+			return
+		elif (self.get_root() == None):
+			tree2.insert(new_node)
+			return
+		T1 = self
+		T2 = tree2
+		if T1.get_root().get_height() > T2.get_root().get_height():
+			TEMP = T1
+			T1 = T2
+			T2 = TEMP
+		root1 = T1.get_root()
+		root2 = T2.get_root()
+		# go to the first node that its height is <= T1.height
+		node2 = root2
+		while node2 != None and node2.is_real_node() and node2.get_height():
+			node2 = node2.get_left()
+		if node2 == None or node2.is_real_node():
+			return
+		cParent = node2.get_parent()
+		# connect x and T1 and T2
+		node2.set_parent(new_node)
+		root1.set_parent(new_node)
+		new_node.set_right(node2)
+		new_node.set_left(root1)
+		new_node.set_parent(cParent)
+
+		if cParent != None :
+			# disconnect node2
+			cParent.set_left(new_node)
+		else:
+			# new node is connecting 2 roots
+			T2.set_root(new_node)
+		T2.update_ancestors_heights(new_node)
+		T1.set_root(T2.get_root())
+		return T2
+
+
 
 
 
@@ -691,13 +742,16 @@ class AVLTree(object):
 
 	def print_tree(self):
 		"""Prints the AVL tree."""
+		if self.get_root() == None:
+			print("The tree is empty!")
+			return
 		self.print_tree_recursive(self.root, 0)
 
 	def print_tree_recursive(self, node, depth):
 		"""Recursive helper function for printing the AVL tree."""
 		if node is not None and node.is_real_node():
 			self.print_tree_recursive(node.get_right(), depth + 1)
-			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()) + " (Height: " + str(node.get_height()) + ")" + " (BF: " + str(node.get_bf()) + ")"  )
+			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()) + " (Height: " + str(node.get_height()) + ")" + " (BF: " + str(node.get_bf()) + ")" + " (Size: " + str(node.get_size()) + ")"  )
 			self.print_tree_recursive(node.get_left(), depth + 1)
 
 
