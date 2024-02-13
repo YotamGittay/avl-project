@@ -230,6 +230,25 @@ class AVLNode(object):
 		else:
 			print("Virtual Node")
 
+	def clone(self):
+		if self is None:
+			return None
+
+		new_node = AVLNode(self.get_key(), self.get_value())
+		new_node.set_height(self.get_height())
+		new_node.set_size(self.get_size())
+
+		if self.get_left():
+			new_node.set_left(self.get_left().clone())
+		if self.get_right():
+			new_node.set_right(self.get_right().clone())
+
+		if new_node.get_left() is not None:
+			new_node.get_left().set_parent(new_node)
+		if new_node.get_right() is not None:
+			new_node.get_right().set_parent(new_node)
+
+		return new_node
 
 
 
@@ -633,6 +652,35 @@ class AVLTree(object):
 				bg_tree.insert(parent)
 				bg_tree.join(AVLTree(parent.get_right()))
 
+	def split2(self, node):
+		TSmaller = AVLTree()
+		TBigger = AVLTree()
+		TSmaller.set_root(node.get_left().clone())
+		TBigger.set_root(node.get_right().clone())
+
+		TTempSmaller = AVLTree()
+		TTempBigger = AVLTree()
+		lastNode = node
+		node = node.get_parent()
+		while(node != None and node.is_real_node()):
+			currNode = node
+			if node.get_right() == lastNode:
+				TTempSmaller.set_root(node.get_left().clone())
+				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
+			else:
+				TTempBigger.set_root(node.get_right().clone())
+				TTempBigger.join(TBigger, node.get_key(), node.get_value())
+				TBigger =  TTempBigger.clone()
+
+			lastNode = currNode
+			node = node.get_parent()
+
+		to_return = [TSmaller, TBigger]
+		return to_return
+
+
+
+
 	"""joins self with key and another AVLTree
 
 	@type tree2: AVLTree 
@@ -725,12 +773,6 @@ class AVLTree(object):
 	#
 	# 	return bg_tree
 
-
-
-
-
-
-
 	"""returns the root of the tree representing the dictionary
 
 	@rtype: AVLNode
@@ -756,8 +798,6 @@ class AVLTree(object):
 			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()) + " (Height: " + str(node.get_height()) + ")" + " (BF: " + str(node.get_bf()) + ")" + " (Size: " + str(node.get_size()) + ")"  )
 			self.print_tree_recursive(node.get_left(), depth + 1)
 
-
-
 	def is_avl(self):
 		def is_avl_tree_rec(node : 'AVLNode', bf, keys):
 			if node is None or not node.is_real_node():
@@ -777,11 +817,20 @@ class AVLTree(object):
 			if abs(k) > 1:
 				is_balnced = False
 				break
-		
-		
+
+
 		is_bst = all(keys[i] <= keys[i+1] for i in range(len(keys)-1))
 
 		return is_balnced and is_bst
+
+	def clone(self):
+		tree = AVLTree()
+		root = self.get_root().clone()
+		tree.set_root(root)
+		return tree
+
+
+
 	
 
 
