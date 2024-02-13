@@ -230,6 +230,25 @@ class AVLNode(object):
 		else:
 			print("Virtual Node")
 
+	def clone(self):
+		if self is None:
+			return None
+
+		new_node = AVLNode(self.get_key(), self.get_value())
+		new_node.set_height(self.get_height())
+		new_node.set_size(self.get_size())
+
+		if self.get_left():
+			new_node.set_left(self.get_left().clone())
+		if self.get_right():
+			new_node.set_right(self.get_right().clone())
+
+		if new_node.get_left() is not None:
+			new_node.get_left().set_parent(new_node)
+		if new_node.get_right() is not None:
+			new_node.get_right().set_parent(new_node)
+
+		return new_node
 
 
 
@@ -633,6 +652,35 @@ class AVLTree(object):
 				bg_tree.insert(parent)
 				bg_tree.join(AVLTree(parent.get_right()))
 
+	def split2(self, node):
+		TSmaller = AVLTree()
+		TBigger = AVLTree()
+		TSmaller.set_root(node.get_left().clone())
+		TBigger.set_root(node.get_right().clone())
+
+		TTempSmaller = AVLTree()
+		TTempBigger = AVLTree()
+		lastNode = node
+		node = node.get_parent()
+		while(node != None and node.is_real_node()):
+			currNode = node
+			if node.get_right() == lastNode:
+				TTempSmaller.set_root(node.get_left().clone())
+				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
+			else:
+				TTempBigger.set_root(node.get_right().clone())
+				TTempBigger.join(TBigger, node.get_key(), node.get_value())
+				TBigger =  TTempBigger.clone()
+
+			lastNode = currNode
+			node = node.get_parent()
+
+		to_return = [TSmaller, TBigger]
+		return to_return
+
+
+
+
 	"""joins self with key and another AVLTree
 
 	@type tree2: AVLTree 
@@ -646,53 +694,14 @@ class AVLTree(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def join(self, tree2, key, val):
-		separate_node = AVLNode(key, val)
-		sm_tree = AVLTree()
-		bg_tree = AVLTree()
-		
-		# Determine the smaller and bigger tree
-		if self.get_root().get_size() >= tree2.get_root().get_size():
-			bg_tree, sm_tree = self, tree2
-		else:
-			bg_tree, sm_tree = tree2, self
-
-		# Traverse down the bigger tree to find the correct position
-		b = bg_tree.get_root()
-		parent_b = None
-		while b and b.get_size() >= sm_tree.get_root().get_size():
-			parent_b = b
-			b = b.get_left()
-
-		# Reconfigure the tree structure
-		if b:
-			separate_node.set_right(b)
-			b.set_parent(separate_node)
-		if parent_b:
-			parent_b.set_left(separate_node)
-		else:  # separate_node becomes new root
-			bg_tree.set_root(separate_node)
-
-		separate_node.set_left(sm_tree.root)
-		sm_tree.root.set_parent(separate_node)
-
-		# Rebalance the tree starting from separate_node upwards
-		rotations = 0
-		curr = separate_node
-		while curr:
-			rotations += bg_tree.rebalance(curr)
-			curr = curr.get_parent()
-
-		return bg_tree
-
-	def join2(self, tree2, key, val):
 
 		new_node = AVLNode(key, val)
 		if (tree2 == None or tree2.get_root() == None):
 			self.insert(new_node)
-			return
+			return self.get_root().get_height()
 		elif (self.get_root() == None):
 			tree2.insert(new_node)
-			return
+			return tree2.get_root().get_height()
 		T1 = self
 		T2 = tree2
 		if T1.get_root().get_height() > T2.get_root().get_height():
@@ -701,12 +710,13 @@ class AVLTree(object):
 			T2 = TEMP
 		root1 = T1.get_root()
 		root2 = T2.get_root()
+		heights_diff = abs(root2.get_height() - root1.get_height())
 		# go to the first node that its height is <= T1.height
 		node2 = root2
-		while node2 != None and node2.is_real_node() and node2.get_height():
+		while node2 != None and node2.is_real_node() and node2.get_height() > root1.get_height():
 			node2 = node2.get_left()
-		if node2 == None or node2.is_real_node():
-			return
+		if node2 == None or not node2.is_real_node():
+			return heights_diff
 		cParent = node2.get_parent()
 		# connect x and T1 and T2
 		node2.set_parent(new_node)
@@ -722,12 +732,46 @@ class AVLTree(object):
 			# new node is connecting 2 roots
 			T2.set_root(new_node)
 		T2.update_ancestors_heights(new_node)
-		T1.set_root(T2.get_root())
-		return T2
+		return heights_diff
 
-
-
-
+	# def join(self, tree2, key, val):
+	# 	separate_node = AVLNode(key, val)
+	# 	sm_tree = AVLTree()
+	# 	bg_tree = AVLTree()
+	#
+	# 	# Determine the smaller and bigger tree
+	# 	if self.get_root().get_size() >= tree2.get_root().get_size():
+	# 		bg_tree, sm_tree = self, tree2
+	# 	else:
+	# 		bg_tree, sm_tree = tree2, self
+	#
+	# 	# Traverse down the bigger tree to find the correct position
+	# 	b = bg_tree.get_root()
+	# 	parent_b = None
+	# 	while b and b.get_size() >= sm_tree.get_root().get_size():
+	# 		parent_b = b
+	# 		b = b.get_left()
+	#
+	# 	# Reconfigure the tree structure
+	# 	if b:
+	# 		separate_node.set_right(b)
+	# 		b.set_parent(separate_node)
+	# 	if parent_b:
+	# 		parent_b.set_left(separate_node)
+	# 	else:  # separate_node becomes new root
+	# 		bg_tree.set_root(separate_node)
+	#
+	# 	separate_node.set_left(sm_tree.root)
+	# 	sm_tree.root.set_parent(separate_node)
+	#
+	# 	# Rebalance the tree starting from separate_node upwards
+	# 	rotations = 0
+	# 	curr = separate_node
+	# 	while curr:
+	# 		rotations += bg_tree.rebalance(curr)
+	# 		curr = curr.get_parent()
+	#
+	# 	return bg_tree
 
 	"""returns the root of the tree representing the dictionary
 
@@ -754,8 +798,6 @@ class AVLTree(object):
 			print("    " * depth + str(node.get_key()) + ":" + str(node.get_value()) + " (Height: " + str(node.get_height()) + ")" + " (BF: " + str(node.get_bf()) + ")" + " (Size: " + str(node.get_size()) + ")"  )
 			self.print_tree_recursive(node.get_left(), depth + 1)
 
-
-
 	def is_avl(self):
 		def is_avl_tree_rec(node : 'AVLNode', bf, keys):
 			if node is None or not node.is_real_node():
@@ -775,11 +817,20 @@ class AVLTree(object):
 			if abs(k) > 1:
 				is_balnced = False
 				break
-		
-		
+
+
 		is_bst = all(keys[i] <= keys[i+1] for i in range(len(keys)-1))
 
 		return is_balnced and is_bst
+
+	def clone(self):
+		tree = AVLTree()
+		root = self.get_root().clone()
+		tree.set_root(root)
+		return tree
+
+
+
 	
 
 
