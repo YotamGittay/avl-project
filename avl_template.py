@@ -665,13 +665,13 @@ class AVLTree(object):
 		while(node != None and node.is_real_node()):
 			currNode = node
 			if node.get_right() == lastNode:
+
 				TTempSmaller.set_root(node.get_left().clone())
 				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
 			else:
-				TTempBigger.set_root(node.get_right().clone())
-				TTempBigger.join(TBigger, node.get_key(), node.get_value())
-				TBigger =  TTempBigger.clone()
 
+				TTempBigger.set_root(node.get_right().clone())
+				TBigger.join(TTempBigger, node.get_key(), node.get_value())
 			lastNode = currNode
 			node = node.get_parent()
 
@@ -730,8 +730,8 @@ class AVLTree(object):
 			cParent.set_left(new_node)
 		else:
 			# new node is connecting 2 roots
-			T2.set_root(new_node)
-		T2.update_ancestors_heights(new_node)
+			T1.set_root(new_node)
+		T1.update_ancestors_heights(new_node)
 		return heights_diff
 
 	# def join(self, tree2, key, val):
