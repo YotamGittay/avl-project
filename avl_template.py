@@ -631,28 +631,28 @@ class AVLTree(object):
 	dictionary smaller than node.key, right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
 	"""
-	def split(self, node : 'AVLNode'): # using joins
-		sm_tree = AVLTree()
-		bg_tree = AVLTree()
+	# def split(self, node : 'AVLNode'): # using joins
+	# 	sm_tree = AVLTree()
+	# 	bg_tree = AVLTree()
+	#
+	# 	sm_tree.join(AVLTree(node.get_left()), node.get_key(), node.get_value()) # seperate left and right subtrees of node
+	# 	bg_tree.join(AVLTree(node.get_right()), node.get_key(), node.get_value())
+	#
+	# 	curr = node
+	# 	while curr is not None: # split rest of the tree
+	# 		parent = curr.get_parent()
+	# 		if curr.what_child() is None: # made it to the root
+	# 			return
+	# 		if curr.what_child() == "R": # if curr is right child to its father
+	# 			parent.set_right(AVLNode(None, None)) # disconnect father from right child
+	# 			sm_tree.insert(parent)
+	# 			sm_tree.join(AVLTree(parent.get_left()))
+	# 		if curr.what_child() == "L": # if curr is left child of its father
+	# 			parent.set_left(AVLNode(None, None)) # disconnect father from left child
+	# 			bg_tree.insert(parent)
+	# 			bg_tree.join(AVLTree(parent.get_right()))
 
-		sm_tree.join(AVLTree(node.get_left()), node.get_key(), node.get_value()) # seperate left and right subtrees of node
-		bg_tree.join(AVLTree(node.get_right()), node.get_key(), node.get_value())
-
-		curr = node
-		while curr is not None: # split rest of the tree 
-			parent = curr.get_parent()
-			if curr.what_child() is None: # made it to the root
-				return
-			if curr.what_child() == "R": # if curr is right child to its father
-				parent.set_right(AVLNode(None, None)) # disconnect father from right child
-				sm_tree.insert(parent)
-				sm_tree.join(AVLTree(parent.get_left()))
-			if curr.what_child() == "L": # if curr is left child of its father
-				parent.set_left(AVLNode(None, None)) # disconnect father from left child
-				bg_tree.insert(parent)
-				bg_tree.join(AVLTree(parent.get_right()))
-
-	def split2(self, node):
+	def split(self, node):
 		TSmaller = AVLTree()
 		TBigger = AVLTree()
 		TSmaller.set_root(node.get_left().clone())
