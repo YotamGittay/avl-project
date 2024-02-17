@@ -8,8 +8,6 @@ from typing import Optional
 import random
 
 
-
-
 """A class represnting a node in an AVL tree"""
 
 class AVLNode(object):
@@ -130,7 +128,8 @@ class AVLNode(object):
 
 	def fix_height(self):
 		self.set_height(max(self.get_left().get_height() + 1, self.get_right().get_height() +1))
-
+	def is_correct_height(self):
+		return max(self.get_left().get_height() + 1, self.get_right().get_height() +1) == self.get_height()
 	"""sets parent
 
 	@type node: AVLNode
@@ -443,9 +442,8 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, node):
-		pysicallyDeletedParent = self.delete_BST(node)
+		(pysicallyDeletedParent, counter) = self.delete_BST(node)
 		parent = pysicallyDeletedParent
-		counter = 0
 		while parent!= None and parent.is_real_node():
 			balance_factor = parent.get_bf()
 			if abs(balance_factor) < 2 and parent.get_last_height() == parent.get_height():
@@ -481,35 +479,37 @@ class AVLTree(object):
 
 	def delete_BST(self, node):
 		if node == None or not node.is_real_node():
-			return
+			return (None, 0)
 		if node.is_leaf():
-			parent = self.delete_leaf(node)
+			(parent, counter) = self.delete_leaf(node)
 		elif not node.get_left().is_real_node() or not node.get_right().is_real_node():
-			parent = self.delete_easy(node)
+			(parent, counter) = self.delete_easy(node)
 		else:
-			parent = self.delete_by_successor(node)
-		self.update_ancestors_heights(parent)
-		return parent
+			(parent, counter) = self.delete_by_successor(node)
+		counter2 = self.update_ancestors_heights(parent)
+		return (parent, counter2+counter)
 
 
 	def delete_leaf(self, node):
+		counter = 0
 		if node == None or not node.is_real_node():
-			return
+			return (None, counter)
 		if node == self.get_root():
 			# delete root, not supposed to happen but just in case
 			self.root = None
-			return
+			return (None, counter)
 		parent = node.get_parent()
 		fake_node = AVLNode(None, None)
 		if parent.get_left() == node:
 			parent.set_left(fake_node)
 		else:
 			parent.set_right(fake_node)
-		return parent
+		return (parent, counter)
 
 	def delete_easy(self, node):
+		counter = 0
 		if node == None or not node.is_real_node():
-			return
+			return (None, counter)
 		# special case for root
 		if node == self.get_root():
 			if node.get_left().is_real_node():
@@ -522,7 +522,7 @@ class AVLTree(object):
 			child.set_parent(None)
 			node.set_parent(None)
 			node.set_right(AVLNode(None, None))
-			return
+			return (None, counter)
 
 		parent = node.get_parent()
 		if not node.get_left().is_real_node():
@@ -557,19 +557,20 @@ class AVLTree(object):
 				node.set_left(AVLNode(None, None))
 		# change attributes of nodes
 		node.set_height(0)
-		return parent
+		return (parent, counter)
 
 	def delete_by_successor(self, node):
 		successor = self.successor(node)
 		successorParent = successor.get_parent()
 		isRoot = node == self.root
 		# delete successor
-		self.delete(successor)
+		(parent, counter) = self.delete_BST(successor)
 		# connect successor to the node
 		successor.set_parent(node.get_parent())
 		successor.set_right(node.get_right())
 		successor.set_left(node.get_left())
 		successor.set_height(node.get_height())
+		counter += 1
 		# connect successor to parent
 		if node.get_parent() != None and node.get_parent().is_real_node():
 			if node.get_parent().get_left() == node:
@@ -584,13 +585,19 @@ class AVLTree(object):
 		# check if root
 		if isRoot:
 			self.root = successor
-		return successorParent
+		return (successorParent, counter)
 
 	def update_ancestors_heights(self, node):
-		parent = node
-		while parent != None and parent.is_real_node():
+		counter = 0
+		if not node.is_correct_height():
+			counter += 1
+			node.fix_height()
+		parent = node.get_parent()
+		while parent != None and parent.is_real_node() and not parent.is_correct_height():
+			counter += 1
 			parent.fix_height()
 			parent = parent.get_parent()
+		return counter
 
 
 	"""returns an array representing dictionary 
@@ -631,28 +638,28 @@ class AVLTree(object):
 	dictionary smaller than node.key, right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
 	"""
-	def split(self, node : 'AVLNode'): # using joins
-		sm_tree = AVLTree()
-		bg_tree = AVLTree()
+	# def split(self, node : 'AVLNode'): # using joins
+	# 	sm_tree = AVLTree()
+	# 	bg_tree = AVLTree()
+	#
+	# 	sm_tree.join(AVLTree(node.get_left()), node.get_key(), node.get_value()) # seperate left and right subtrees of node
+	# 	bg_tree.join(AVLTree(node.get_right()), node.get_key(), node.get_value())
+	#
+	# 	curr = node
+	# 	while curr is not None: # split rest of the tree
+	# 		parent = curr.get_parent()
+	# 		if curr.what_child() is None: # made it to the root
+	# 			return
+	# 		if curr.what_child() == "R": # if curr is right child to its father
+	# 			parent.set_right(AVLNode(None, None)) # disconnect father from right child
+	# 			sm_tree.insert(parent)
+	# 			sm_tree.join(AVLTree(parent.get_left()))
+	# 		if curr.what_child() == "L": # if curr is left child of its father
+	# 			parent.set_left(AVLNode(None, None)) # disconnect father from left child
+	# 			bg_tree.insert(parent)
+	# 			bg_tree.join(AVLTree(parent.get_right()))
 
-		sm_tree.join(AVLTree(node.get_left()), node.get_key(), node.get_value()) # seperate left and right subtrees of node
-		bg_tree.join(AVLTree(node.get_right()), node.get_key(), node.get_value())
-
-		curr = node
-		while curr is not None: # split rest of the tree 
-			parent = curr.get_parent()
-			if curr.what_child() is None: # made it to the root
-				return
-			if curr.what_child() == "R": # if curr is right child to its father
-				parent.set_right(AVLNode(None, None)) # disconnect father from right child
-				sm_tree.insert(parent)
-				sm_tree.join(AVLTree(parent.get_left()))
-			if curr.what_child() == "L": # if curr is left child of its father
-				parent.set_left(AVLNode(None, None)) # disconnect father from left child
-				bg_tree.insert(parent)
-				bg_tree.join(AVLTree(parent.get_right()))
-
-	def split2(self, node):
+	def split(self, node):
 		TSmaller = AVLTree()
 		TBigger = AVLTree()
 		TSmaller.set_root(node.get_left().clone())
