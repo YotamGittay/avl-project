@@ -1,5 +1,6 @@
 import unittest
 from avl_template import AVLTree, AVLNode
+from graph_tree import draw_binary_tree
 
 
 class TestAVLTree(unittest.TestCase):
@@ -209,8 +210,6 @@ class TestAVLTree(unittest.TestCase):
         avl_tree.insert(12, "12")
         avl_tree.insert(9, "9")
         avl_tree.insert(13, "13")
-
-
 
         # Delete a node with two children
         ans = avl_tree.delete(avl_tree.search(11))
