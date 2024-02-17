@@ -1,8 +1,4 @@
-tuple = (1,2)
-string = "this is a string"
+from tests import tests
 
-test = (tuple, string)
-
-print(test)
-
-
+t = tests()
+t.test_split()

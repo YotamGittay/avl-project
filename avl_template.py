@@ -681,7 +681,10 @@ class AVLTree(object):
 				TBigger.join(TTempBigger, node.get_key(), node.get_value())
 			lastNode = currNode
 			node = node.get_parent()
-
+		if TBigger.get_root() == None or not TBigger.get_root().is_real_node():
+			TBigger = AVLTree()
+		if TSmaller.get_root() == None or not TSmaller.get_root().is_real_node():
+			TSmaller = AVLTree()
 		to_return = [TSmaller, TBigger]
 		return to_return
 
