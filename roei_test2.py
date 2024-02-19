@@ -1,38 +1,33 @@
 from avl_template import *
 
-MIN_KEY = 1
-MAX_KEY = 50
-
-NODES = [7,32,43,16,8,38,41,50,2,23,28,9,12]
-
-tree = AVLTree()
-for i in range(len(NODES)):
-    tree.insert(NODES[i], "")
-print("*******")
-tree.print_tree()
-node = tree.search(41)
-tree.split(node)
-
-
-
-# def tester(SIZE=100, num_of_trees=100):
-#     for k in range(num_of_trees):
-#         tree = AVLTree()
-#         keys = [random.randint(0, 10000) for i in range(SIZE)]
-#         for i in keys:
-#             tree.insert(i, "")
-#         if not tree.is_avl():
-#             return False
-#         print("insert is good!- tree number" + str(k))
+# MIN_KEY = 1
+# MAX_KEY = 50
 #
-#         for i in range(len(keys)):
-#             random_element = random.choice(keys)
-#             keys.remove(random_element)
-#             node = tree.search(random_element)
-#             tree.delete(node)
-#             if not tree.is_avl():
-#                 return False
+# NODES =  [11, 4,7, 23,15, 40, 30, 43 ]
 #
-#     return True
+# tree = AVLTree()
+# for i in range(len(NODES)):
+#     tree.insert(NODES[i], "")
 #
-# tester(100, 100)
+# tree.print_tree()
+#
+# print("*******")
+# node = tree.search(7)
+# print(tree.delete(node))
+# tree.print_tree()
+
+keys1 = [4,2,5]
+keys2 = [20, 22, 16, 18, 14]
+
+tree1 = AVLTree()
+for i in range(len(keys1)):
+    tree1.insert(keys1[i], "")
+tree1.print_tree()
+print("***********")
+tree2 = AVLTree()
+for i in range(len(keys2)):
+    tree2.insert(keys2[i], "")
+tree2.print_tree()
+print("***********")
+tree2.join(tree1,10,"")
+tree2.print_tree()
