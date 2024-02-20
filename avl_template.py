@@ -317,7 +317,6 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, key, val):  # still has some issues with large trees, cand find problem
-
 		# find where to insert new node 
 		if self.root == None:
 			self.root = AVLNode(key, val)
@@ -390,14 +389,15 @@ class AVLTree(object):
 		A.set_parent(parent)
 		# fix heights
 		counter = 0
+		if not B.is_correct_height():
+			B.fix_height()
+			counter += 1
 		if not A.is_correct_height():
 			A.fix_height()
 			counter += 1
-			B.fix_height()
-			counter += 1
 		# fix sizes
-		A.fix_size()
 		B.fix_size()
+		A.fix_size()
 
 		return counter
 
@@ -426,13 +426,14 @@ class AVLTree(object):
 		if not B.is_correct_height():
 			B.fix_height()
 			counter += 1
+		if not A.is_correct_height():
 			A.fix_height()
 			counter += 1
 
 
 		# fix sizes
-		A.fix_size()
 		B.fix_size()
+		A.fix_size()
 		return counter
 
 	"""deletes node from the dictionary
@@ -443,11 +444,16 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, node):
+		if node == None :
+			return 0
 		(pysicallyDeletedParent, counter) = self.delete_BST(node)
 		parent = pysicallyDeletedParent
 		while parent!= None and parent.is_real_node():
+			if not parent.is_correct_height():
+				parent.fix_height()
 			balance_factor = parent.get_bf()
 			if abs(balance_factor) < 2 and parent.get_last_height() == parent.get_height():
+				# parent = parent.get_parent()
 				return counter
 			elif abs(balance_factor) < 2 and parent.get_last_height() != parent.get_height():
 				parent = parent.get_parent()
@@ -455,9 +461,12 @@ class AVLTree(object):
 				next_parent = parent.get_parent()
 				counter += self.rebalance_delete(parent)
 				parent = next_parent
-		return counter
+		return  counter
+
 
 	def rebalance_delete(self, parent):
+		if parent == None or not parent.is_real_node():
+			return
 		balance_factor = parent.get_bf()
 		counter = 0
 		if balance_factor == 2:
@@ -467,7 +476,7 @@ class AVLTree(object):
 				counter += self.left_rotation(parent.get_left())
 				counter += self.right_rotation(parent)
 		else:
-			if parent.get_left().get_bf() in [0,-1]:
+			if parent.get_right().get_bf() in [0,-1]:
 				counter += self.left_rotation(parent)
 			else:
 				counter += self.right_rotation(parent.get_right())
@@ -483,7 +492,6 @@ class AVLTree(object):
 			(parent, counter) = self.delete_easy(node)
 		else:
 			(parent, counter) = self.delete_by_successor(node)
-
 		counter2 = self.update_ancestors_heights(parent)
 		return (parent, counter2+counter)
 
@@ -560,6 +568,7 @@ class AVLTree(object):
 	def delete_by_successor(self, node):
 		successor = self.successor(node)
 		successorParent = successor.get_parent()
+		successorParentIsNode = successorParent == node
 		isRoot = node == self.root
 		# delete successor
 		(parent, counter) = self.delete_BST(successor)
@@ -582,13 +591,15 @@ class AVLTree(object):
 		# check if root
 		if isRoot:
 			self.root = successor
+		if successorParentIsNode:
+
+			return (successor, counter)
 		return (successorParent, counter)
 
 	def update_ancestors_heights(self, node):
 		if node == None or not node.is_real_node():
 			return 0
 		counter = 0
-
 		if not node.is_correct_height():
 			counter += 1
 			node.fix_height()
@@ -661,6 +672,8 @@ class AVLTree(object):
 	# 			bg_tree.join(AVLTree(parent.get_right()))
 
 	def split(self, node):
+		if node == None or not node.is_real_node():
+			return []
 		TSmaller = AVLTree()
 		TBigger = AVLTree()
 		TSmaller.set_root(node.get_left().clone())
@@ -673,11 +686,9 @@ class AVLTree(object):
 		while(node != None and node.is_real_node()):
 			currNode = node
 			if node.get_right() == lastNode:
-
 				TTempSmaller.set_root(node.get_left().clone())
 				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
 			else:
-
 				TTempBigger.set_root(node.get_right().clone())
 				TBigger.join(TTempBigger, node.get_key(), node.get_value())
 			lastNode = currNode
@@ -825,10 +836,10 @@ class AVLTree(object):
 			if node is None or not node.is_real_node():
 				return
 			
-			is_avl_tree_rec(node.left , bf, keys)
+			is_avl_tree_rec(node.get_left() , bf, keys)
 			bf.append(node.get_bf())
 			keys.append(node.get_key())
-			is_avl_tree_rec(node.right, bf, keys)
+			is_avl_tree_rec(node.get_right(), bf, keys)
 		
 		bf = []
 		keys = []
