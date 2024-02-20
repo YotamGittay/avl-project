@@ -1,6 +1,6 @@
 
 
-from avl_template import  AVLTree
+from AVLTree import  AVLTree
 from graph_tree import draw_binary_tree
 
 nodes = [79, 54, 23, 9, 31, 84, 7, 3, 77, 55, 86, 17, 1, 84, 3, 80, 15, 10, 62, 13, 14, 43, 66, 2, 16, 27, 29, 62, 40, 94]

@@ -1,6 +1,6 @@
 import unittest
 
-from avl_template import *
+from AVLTree import *
 from graph_tree import draw_binary_tree
 from UnitTestAVLTree import TestAVLTree
 import inspect

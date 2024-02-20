@@ -1,6 +1,6 @@
 
 import random
-from avl_template import *
+from AVLTree import *
 """""
 # Constants for random number generation
 MIN_KEY = 1
