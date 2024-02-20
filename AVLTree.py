@@ -721,13 +721,13 @@ class AVLTree(object):
 				self.insert(key, val)
 				return 1
 			else:
-				height = self.get_root().get_height() + 1
+				height = self.get_root().get_height()
 				self.insert(key, val)
-				return height + 1
+				return abs(height +1 ) + 1
 		elif (self.get_root() == None):
 			height = tree2.get_root().get_height()
 			tree2.insert(key, val)
-			return height + 1
+			return abs(height +1 ) + 1
 		T1 = self
 		T2 = tree2
 		if T1.get_root().get_key() > T2.get_root().get_key():
