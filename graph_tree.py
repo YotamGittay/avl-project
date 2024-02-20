@@ -1,6 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from avl_template import AVLTree, AVLNode
+from AVLTree import AVLTree, AVLNode
 
 # class TreeNode:
 #     def __init__(self, value):

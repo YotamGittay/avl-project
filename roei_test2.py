@@ -1,4 +1,4 @@
-from avl_template import *
+from AVLTree import *
 
 # MIN_KEY = 1
 # MAX_KEY = 50

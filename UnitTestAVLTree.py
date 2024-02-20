@@ -1,5 +1,5 @@
 import unittest
-from avl_template import AVLTree, AVLNode
+from AVLTree import AVLTree, AVLNode
 from graph_tree import draw_binary_tree
 
 
