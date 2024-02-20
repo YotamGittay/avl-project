@@ -106,7 +106,7 @@ class AVLNode(object):
 			self.left = node
 			node.set_parent(self)
 			self.fix_size()  # fix the size of current node
-			self.fix_height()   # fix the height of current node
+			#self.fix_height()   # fix the height of current node
 
 
 
@@ -120,7 +120,7 @@ class AVLNode(object):
 			self.right = node
 			node.set_parent(self)
 			self.fix_size()
-			self.fix_height()
+			#self.fix_height()
 
 	def fix_size(self):
 		new_size = 1 + self.get_left().get_size() + self.get_right().get_size()
@@ -250,10 +250,6 @@ class AVLNode(object):
 		return new_node
 
 
-
-
-
-
 """
 A class implementing the ADT Dictionary, using an AVL tree.
 """
@@ -321,7 +317,6 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, key, val):  # still has some issues with large trees, cand find problem
-
 		# find where to insert new node 
 		if self.root == None:
 			self.root = AVLNode(key, val)
@@ -356,28 +351,20 @@ class AVLTree(object):
 			suspect = suspect.get_parent()
 		return rotations
 
-
-
-
 	def rebalance(self, node : 'AVLNode'):
 		rotations = 0
 		if node.get_bf() == 2: # node is left heavy
 			if node.get_left().get_bf() >= 0: # left chile of node is left heavy
-				self.right_rotation(node)
-				rotations += 1
+				rotations += self.right_rotation(node)
 			elif node.get_left().get_bf() <= 0: # left child of node is right heavy
-				self.left_rotation(node.get_left())
-				self.right_rotation(node)
-				rotations += 2
-
+				rotations += self.left_rotation(node.get_left())
+				rotations += self.right_rotation(node)
 		elif node.get_bf() == -2: # node is right heavy
 			if node.get_right().get_bf() <= 0: # right child of node is right heavy
-				self.left_rotation(node)
-				rotations += 1
+				rotations += self.left_rotation(node)
 			elif node.get_right().get_bf() >= 0: # right child of node is left heavy
-				self.right_rotation(node.get_right())
-				self.left_rotation(node)
-				rotations += 2
+				rotations += self.right_rotation(node.get_right())
+				rotations += self.left_rotation(node)
 		return rotations
 
 	def right_rotation(self, B):
@@ -401,11 +388,18 @@ class AVLTree(object):
 			self.set_root(A)
 		A.set_parent(parent)
 		# fix heights
-		A.fix_height()
-		B.fix_height()
+		counter = 0
+		if not B.is_correct_height():
+			B.fix_height()
+			counter += 1
+		if not A.is_correct_height():
+			A.fix_height()
+			counter += 1
 		# fix sizes
-		A.fix_size()
 		B.fix_size()
+		A.fix_size()
+
+		return counter
 
 	def left_rotation(self, B):
 		# according to slide 55 on presentation
@@ -428,11 +422,19 @@ class AVLTree(object):
 			self.set_root(A)
 		A.set_parent(parent)
 		# fix heights
-		A.fix_height()
-		B.fix_height()
+		counter = 0
+		if not B.is_correct_height():
+			B.fix_height()
+			counter += 1
+		if not A.is_correct_height():
+			A.fix_height()
+			counter += 1
+
+
 		# fix sizes
-		A.fix_size()
 		B.fix_size()
+		A.fix_size()
+		return counter
 
 	"""deletes node from the dictionary
 
@@ -442,11 +444,16 @@ class AVLTree(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, node):
+		if node == None :
+			return 0
 		(pysicallyDeletedParent, counter) = self.delete_BST(node)
 		parent = pysicallyDeletedParent
 		while parent!= None and parent.is_real_node():
+			if not parent.is_correct_height():
+				parent.fix_height()
 			balance_factor = parent.get_bf()
 			if abs(balance_factor) < 2 and parent.get_last_height() == parent.get_height():
+				# parent = parent.get_parent()
 				return counter
 			elif abs(balance_factor) < 2 and parent.get_last_height() != parent.get_height():
 				parent = parent.get_parent()
@@ -454,27 +461,26 @@ class AVLTree(object):
 				next_parent = parent.get_parent()
 				counter += self.rebalance_delete(parent)
 				parent = next_parent
-		return counter
+		return  counter
+
 
 	def rebalance_delete(self, parent):
+		if parent == None or not parent.is_real_node():
+			return
 		balance_factor = parent.get_bf()
 		counter = 0
 		if balance_factor == 2:
 			if parent.get_left().get_bf() in [0,1]:
-				self.right_rotation(parent)
-				counter += 1
+				counter += self.right_rotation(parent)
 			else:
-				self.left_rotation(parent.get_left())
-				self.right_rotation(parent)
-				counter += 2
+				counter += self.left_rotation(parent.get_left())
+				counter += self.right_rotation(parent)
 		else:
-			if parent.get_left().get_bf() in [0,-1]:
-				self.left_rotation(parent)
-				counter += 1
+			if parent.get_right().get_bf() in [0,-1]:
+				counter += self.left_rotation(parent)
 			else:
-				self.right_rotation(parent.get_right())
-				self.left_rotation(parent)
-				counter += 2
+				counter += self.right_rotation(parent.get_right())
+				counter += self.left_rotation(parent)
 		return counter
 
 	def delete_BST(self, node):
@@ -523,7 +529,6 @@ class AVLTree(object):
 			node.set_parent(None)
 			node.set_right(AVLNode(None, None))
 			return (None, counter)
-
 		parent = node.get_parent()
 		if not node.get_left().is_real_node():
 			# doesn't have left child
@@ -557,11 +562,13 @@ class AVLTree(object):
 				node.set_left(AVLNode(None, None))
 		# change attributes of nodes
 		node.set_height(0)
+		node.set_size(1)
 		return (parent, counter)
 
 	def delete_by_successor(self, node):
 		successor = self.successor(node)
 		successorParent = successor.get_parent()
+		successorParentIsNode = successorParent == node
 		isRoot = node == self.root
 		# delete successor
 		(parent, counter) = self.delete_BST(successor)
@@ -570,7 +577,6 @@ class AVLTree(object):
 		successor.set_right(node.get_right())
 		successor.set_left(node.get_left())
 		successor.set_height(node.get_height())
-		counter += 1
 		# connect successor to parent
 		if node.get_parent() != None and node.get_parent().is_real_node():
 			if node.get_parent().get_left() == node:
@@ -585,17 +591,23 @@ class AVLTree(object):
 		# check if root
 		if isRoot:
 			self.root = successor
+		if successorParentIsNode:
+
+			return (successor, counter)
 		return (successorParent, counter)
 
 	def update_ancestors_heights(self, node):
+		if node == None or not node.is_real_node():
+			return 0
 		counter = 0
 		if not node.is_correct_height():
 			counter += 1
 			node.fix_height()
 		parent = node.get_parent()
-		while parent != None and parent.is_real_node() and not parent.is_correct_height():
-			counter += 1
-			parent.fix_height()
+		while parent != None and parent.is_real_node():
+			if not parent.is_correct_height():
+				counter += 1
+				parent.fix_height()
 			parent = parent.get_parent()
 		return counter
 
@@ -660,6 +672,8 @@ class AVLTree(object):
 	# 			bg_tree.join(AVLTree(parent.get_right()))
 
 	def split(self, node):
+		if node == None or not node.is_real_node():
+			return []
 		TSmaller = AVLTree()
 		TBigger = AVLTree()
 		TSmaller.set_root(node.get_left().clone())
@@ -672,11 +686,9 @@ class AVLTree(object):
 		while(node != None and node.is_real_node()):
 			currNode = node
 			if node.get_right() == lastNode:
-
 				TTempSmaller.set_root(node.get_left().clone())
 				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
 			else:
-
 				TTempBigger.set_root(node.get_right().clone())
 				TBigger.join(TTempBigger, node.get_key(), node.get_value())
 			lastNode = currNode
@@ -708,10 +720,10 @@ class AVLTree(object):
 		new_node = AVLNode(key, val)
 		if (tree2 == None or tree2.get_root() == None):
 			self.insert(new_node)
-			return self.get_root().get_height()
+			return self.get_root().get_height() + 1
 		elif (self.get_root() == None):
 			tree2.insert(new_node)
-			return tree2.get_root().get_height()
+			return tree2.get_root().get_height() + 1
 		T1 = self
 		T2 = tree2
 		if T1.get_root().get_height() > T2.get_root().get_height():
@@ -740,9 +752,20 @@ class AVLTree(object):
 			cParent.set_left(new_node)
 		else:
 			# new node is connecting 2 roots
-			T1.set_root(new_node)
-		T1.update_ancestors_heights(new_node)
-		return heights_diff
+			self.set_root(new_node)
+		self.update_ancestors_heights(new_node)
+		# rebalancing
+
+		parent = new_node
+		while parent != None and parent.is_real_node():
+			balance_factor = parent.get_bf()
+			next_parent = parent.get_parent()
+			if abs(balance_factor) >= 2:
+				self.rebalance(parent)
+			parent = next_parent
+		self.update_ancestors_heights(new_node)
+
+		return heights_diff + 1
 
 	# def join(self, tree2, key, val):
 	# 	separate_node = AVLNode(key, val)
@@ -813,10 +836,10 @@ class AVLTree(object):
 			if node is None or not node.is_real_node():
 				return
 			
-			is_avl_tree_rec(node.left , bf, keys)
+			is_avl_tree_rec(node.get_left() , bf, keys)
 			bf.append(node.get_bf())
 			keys.append(node.get_key())
-			is_avl_tree_rec(node.right, bf, keys)
+			is_avl_tree_rec(node.get_right(), bf, keys)
 		
 		bf = []
 		keys = []

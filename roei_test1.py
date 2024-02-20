@@ -1,5 +1,5 @@
 
-
+import random
 from avl_template import *
 """""
 # Constants for random number generation
@@ -61,33 +61,19 @@ tree.print_tree()
 def tester(SIZE = 100, num_of_trees = 100):
     for k in range(num_of_trees):
         tree = AVLTree()
-        keys = [random.randint(0, 10000) for i in range(SIZE)]
+        keys = [random.randint(0, 100) for i in range(SIZE)]
         for i in keys:
             tree.insert(i, "")
         if not tree.is_avl():
             return False
         print("insert is good!- tree number" + str(k))
-
-        for i in keys:
+        random_keys = keys.copy()
+        random.shuffle(random_keys)
+        for i in random_keys:
             node = tree.search(i)
             tree.delete(node)
-
             if not tree.is_avl():
                 return False
-        
+        print("delete is good!- tree number" + str(k))
     return True
-
-
-nodes = [i for i in range(10)]
-tree = AVLTree()
-for k in nodes:
-    tree.insert(k, k)
-print(tree.is_avl())
-
-for k in nodes:
-    node = tree.search(k)
-    tree.delete(node)
-    tree.print_tree()
-    if not tree.is_avl():
-        break
-
+print(tester(1000, 1000))
