@@ -86,6 +86,7 @@ class tests:
             #  tests for trees [4, 2, 5] and [20, 22, 16, 18, 14]
             #  balancing should be called on node c and node x
             testHelper.test_root(tree, 10)
+
             testHelper.assert_neighbors(tree, 10, 4, 20, 9)
             testHelper.test_height(tree, 10, 3)
             testHelper.assert_neighbors(tree, 4, 2, 5, 9)
@@ -125,6 +126,7 @@ class tests:
                                                  10,
                                                  10,
                                                  2)
+
 
         for tree in tree_tuple:
             testHelper.test_root(tree, 12)
@@ -259,7 +261,6 @@ class testHelper:
         testHelper.insert_array(tree2_flip_order, key_array1)
 
         actualDiff = tree1_flip_order.join(tree2_flip_order, joiningNodeKey, joiningNodeValue)
-        tree1.print_tree()
         assert actualDiff == expectedDiff, \
             f"With flipped order of trees in join, expected join to return {expectedDiff} but got {actualDiff} instead"
 
