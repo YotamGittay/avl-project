@@ -370,7 +370,6 @@ class AVLTree(object):
 
 	def right_rotation(self, B):
 		# according to slide 55 on presentation
-		print("right rotation ", B.get_key())
 		parent = B.get_parent()
 		A = B.get_left()
 		AR = A.get_right()
@@ -403,7 +402,6 @@ class AVLTree(object):
 
 	def left_rotation(self, B):
 		# according to slide 55 on presentation
-		print("left rotation ", B.get_key())
 		parent = B.get_parent()
 		A = B.get_right()
 		AL = A.get_left()
@@ -593,6 +591,12 @@ class AVLTree(object):
 			return (successor, counter)
 		return (successorParent, counter)
 
+
+	def update_ancestors_sizes(self, node):
+		while node!= None and node.is_real_node():
+			node.fix_size()
+			node = node.get_parent()
+
 	def update_ancestors_heights(self, node):
 		if node == None or not node.is_real_node():
 			return 0
@@ -714,7 +718,6 @@ class AVLTree(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def join(self, tree2, key, val):
-
 		new_node = AVLNode(key, val)
 		if (tree2 == None or tree2.get_root() == None):
 			if not self.get_root():
@@ -727,39 +730,60 @@ class AVLTree(object):
 		elif (self.get_root() == None):
 			height = tree2.get_root().get_height()
 			tree2.insert(key, val)
+			self.set_root(tree2.get_root())
 			return abs(height +1 ) + 1
 		T1 = self
 		T2 = tree2
-		if T1.get_root().get_key() > T2.get_root().get_key():
+		if T1.get_root().get_key() > new_node.get_key() and T2.get_root().get_key() < new_node.get_key():
 			TEMP = T1
 			T1 = T2
 			T2 = TEMP
-		root1 = T1.get_root()
-		root2 = T2.get_root()
-		heights_diff = abs(root2.get_height() - root1.get_height())
-		# go to the first node that its height is <= T1.height
-		node2 = root2
-		while node2 != None and node2.is_real_node() and node2.get_height() > root1.get_height():
-			node2 = node2.get_left()
-		if node2 == None or not node2.is_real_node():
-			return heights_diff
-		cParent = node2.get_parent()
-		# connect x and T1 and T2
-		node2.set_parent(new_node)
-		root1.set_parent(new_node)
-		new_node.set_right(node2)
-		new_node.set_left(root1)
-		new_node.set_parent(cParent)
+		heights_diff = abs(T1.get_root().get_height() - T2.get_root().get_height())
+		if T1.get_root().get_height() +1 >= T2.get_root().get_height():
+			root1 = T1.get_root()
+			root2 = T2.get_root()
+			# go to the first node that its height is <= T1.height
+			node1 = root1
+			while node1.get_right() != None and node1.get_right().is_real_node() and node1.get_height() > root2.get_height():
+				node1 = node1.get_right()
+			cParent = node1.get_parent()
+			# connect x and T1 and T2
+			node1.set_parent(new_node)
+			root2.set_parent(new_node)
+			new_node.set_left(node1)
+			new_node.set_right(root2)
+			new_node.set_parent(cParent)
+			if cParent != None:
+				# disconnect node2
+				cParent.set_right(new_node)
+			else:
+				# new node is connecting 2 roots
+				self.set_root(new_node)
 
-		if cParent != None :
-			# disconnect node2
-			cParent.set_left(new_node)
 		else:
-			# new node is connecting 2 roots
-			self.set_root(new_node)
+			root1 = T1.get_root()
+			root2 = T2.get_root()
+			# go to the first node that its height is <= T1.height
+			node2 = root2
+			while node2.get_left() != None and node2.get_left().is_real_node() and node2.get_height() > root1.get_height():
+				node2 = node2.get_left()
+			cParent = node2.get_parent()
+			# connect x and T1 and T2
+			node2.set_parent(new_node)
+			root1.set_parent(new_node)
+			new_node.set_right(node2)
+			new_node.set_left(root1)
+			new_node.set_parent(cParent)
+			if cParent != None:
+				# disconnect node2
+				cParent.set_left(new_node)
+			else:
+				# new node is connecting 2 roots
+				self.set_root(new_node)
+		tree2.set_root(self.get_root())
 		self.update_ancestors_heights(new_node)
+		self.update_ancestors_sizes(new_node)
 		# rebalancing
-
 		parent = new_node
 		while parent != None and parent.is_real_node():
 			balance_factor = parent.get_bf()
@@ -767,8 +791,6 @@ class AVLTree(object):
 			if abs(balance_factor) >= 2:
 				self.rebalance(parent)
 			parent = next_parent
-		self.update_ancestors_heights(new_node)
-
 		return heights_diff + 1
 
 	# def join(self, tree2, key, val):
@@ -820,6 +842,14 @@ class AVLTree(object):
 
 	def set_root(self, root):
 		self.root = root
+
+
+	@staticmethod
+	def create_tree_from_keys(keys):
+		tree = AVLTree()
+		for k in keys:
+			tree.insert(k, "")
+		return tree
 
 	def print_tree(self):
 		"""Prints the AVL tree."""
