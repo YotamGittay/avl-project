@@ -719,19 +719,20 @@ class AVLTree(object):
 	"""
 	def join(self, tree2, key, val):
 		new_node = AVLNode(key, val)
-		if (tree2 == None or tree2.get_root() == None):
-			if not self.get_root():
+		if tree2 is None or tree2.get_root() is None or not tree2.get_root().is_real_node():
+			if not self.get_root() or not self.get_root().is_real_node():
 				self.insert(key, val)
 				return 1
 			else:
 				height = self.get_root().get_height()
 				self.insert(key, val)
 				return abs(height +1 ) + 1
-		elif (self.get_root() == None):
+		elif self.get_root() is None or not self.get_root().is_real_node():
 			height = tree2.get_root().get_height()
 			tree2.insert(key, val)
 			self.set_root(tree2.get_root())
 			return abs(height +1 ) + 1
+
 		T1 = self
 		T2 = tree2
 		if T1.get_root().get_key() > new_node.get_key() and T2.get_root().get_key() < new_node.get_key():
