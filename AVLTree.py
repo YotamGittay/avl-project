@@ -304,8 +304,6 @@ class AVLTree(object):
 			node = parent
 			parent = parent.get_parent()
 		return parent
-	
-
 
 	"""inserts val at position i in the dictionary
 
@@ -678,8 +676,8 @@ class AVLTree(object):
 			return [AVLTree(), AVLTree()]
 		TSmaller = AVLTree()
 		TBigger = AVLTree()
-		TSmaller.set_root(node.get_left().clone())
-		TBigger.set_root(node.get_right().clone())
+		TSmaller.set_root(node.get_left())
+		TBigger.set_root(node.get_right())
 
 		TTempSmaller = AVLTree()
 		TTempBigger = AVLTree()
@@ -688,10 +686,10 @@ class AVLTree(object):
 		while(node != None and node.is_real_node()):
 			currNode = node
 			if node.get_right() == lastNode:
-				TTempSmaller.set_root(node.get_left().clone())
+				TTempSmaller.set_root(node.get_left())
 				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
 			else:
-				TTempBigger.set_root(node.get_right().clone())
+				TTempBigger.set_root(node.get_right())
 				TBigger.join(TTempBigger, node.get_key(), node.get_value())
 			lastNode = currNode
 			node = node.get_parent()
