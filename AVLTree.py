@@ -248,6 +248,13 @@ class AVLNode(object):
 			new_node.get_right().set_parent(new_node)
 
 		return new_node
+	
+	def get_max(self):
+		curr = self
+		while curr.is_real_node():
+			prev = curr
+			curr = curr.right
+		return prev
 
 
 """
@@ -262,6 +269,7 @@ class AVLTree(object):
 	"""
 	def __init__(self, root = None):  # probebly need to add more fields
 		self.root = root
+		self.costs = []
 
 
 	"""searches for a AVLNode in the dictionary corresponding to the key
@@ -317,7 +325,7 @@ class AVLTree(object):
 	"""
 	def insert(self, key, val):  # still has some issues with large trees, cand find problem
 		# find where to insert new node 
-		if self.root == None:
+		if self.root == None or not self.root.is_real_node():
 			self.root = AVLNode(key, val)
 			return 0
 		
@@ -650,26 +658,7 @@ class AVLTree(object):
 	dictionary smaller than node.key, right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
 	"""
-	# def split(self, node : 'AVLNode'): # using joins
-	# 	sm_tree = AVLTree()
-	# 	bg_tree = AVLTree()
-	#
-	# 	sm_tree.join(AVLTree(node.get_left()), node.get_key(), node.get_value()) # seperate left and right subtrees of node
-	# 	bg_tree.join(AVLTree(node.get_right()), node.get_key(), node.get_value())
-	#
-	# 	curr = node
-	# 	while curr is not None: # split rest of the tree
-	# 		parent = curr.get_parent()
-	# 		if curr.what_child() is None: # made it to the root
-	# 			return
-	# 		if curr.what_child() == "R": # if curr is right child to its father
-	# 			parent.set_right(AVLNode(None, None)) # disconnect father from right child
-	# 			sm_tree.insert(parent)
-	# 			sm_tree.join(AVLTree(parent.get_left()))
-	# 		if curr.what_child() == "L": # if curr is left child of its father
-	# 			parent.set_left(AVLNode(None, None)) # disconnect father from left child
-	# 			bg_tree.insert(parent)
-	# 			bg_tree.join(AVLTree(parent.get_right()))
+
 
 	def split(self, node):
 		if node == None or not node.is_real_node() or self.size()==1:
@@ -687,10 +676,10 @@ class AVLTree(object):
 			currNode = node
 			if node.get_right() == lastNode:
 				TTempSmaller.set_root(node.get_left())
-				TSmaller.join(TTempSmaller, node.get_key(),  node.get_value())
+				self.costs.append(TSmaller.join(TTempSmaller, node.get_key(),  node.get_value()))
 			else:
 				TTempBigger.set_root(node.get_right())
-				TBigger.join(TTempBigger, node.get_key(), node.get_value())
+				self.costs.append(TBigger.join(TTempBigger, node.get_key(), node.get_value()))
 			lastNode = currNode
 			node = node.get_parent()
 		if TBigger.get_root() == None or not TBigger.get_root().is_real_node():
@@ -792,44 +781,6 @@ class AVLTree(object):
 			parent = next_parent
 		return heights_diff + 1
 
-	# def join(self, tree2, key, val):
-	# 	separate_node = AVLNode(key, val)
-	# 	sm_tree = AVLTree()
-	# 	bg_tree = AVLTree()
-	#
-	# 	# Determine the smaller and bigger tree
-	# 	if self.get_root().get_size() >= tree2.get_root().get_size():
-	# 		bg_tree, sm_tree = self, tree2
-	# 	else:
-	# 		bg_tree, sm_tree = tree2, self
-	#
-	# 	# Traverse down the bigger tree to find the correct position
-	# 	b = bg_tree.get_root()
-	# 	parent_b = None
-	# 	while b and b.get_size() >= sm_tree.get_root().get_size():
-	# 		parent_b = b
-	# 		b = b.get_left()
-	#
-	# 	# Reconfigure the tree structure
-	# 	if b:
-	# 		separate_node.set_right(b)
-	# 		b.set_parent(separate_node)
-	# 	if parent_b:
-	# 		parent_b.set_left(separate_node)
-	# 	else:  # separate_node becomes new root
-	# 		bg_tree.set_root(separate_node)
-	#
-	# 	separate_node.set_left(sm_tree.root)
-	# 	sm_tree.root.set_parent(separate_node)
-	#
-	# 	# Rebalance the tree starting from separate_node upwards
-	# 	rotations = 0
-	# 	curr = separate_node
-	# 	while curr:
-	# 		rotations += bg_tree.rebalance(curr)
-	# 		curr = curr.get_parent()
-	#
-	# 	return bg_tree
 
 	"""returns the root of the tree representing the dictionary
 
@@ -894,6 +845,8 @@ class AVLTree(object):
 		root = self.get_root().clone()
 		tree.set_root(root)
 		return tree
+	
+	
 
 
 
