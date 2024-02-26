@@ -726,6 +726,7 @@ class AVLTree(object):
 			TEMP = T1
 			T1 = T2
 			T2 = TEMP
+		print(f"hight of T1 = {T1.root.get_height()} hight of T2 = {T2.root.get_height()}") # for test, delete after
 		heights_diff = abs(T1.get_root().get_height() - T2.get_root().get_height())
 		if T1.get_root().get_height() +1 >= T2.get_root().get_height():
 			root1 = T1.get_root()
