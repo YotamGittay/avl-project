@@ -308,7 +308,7 @@ class AVLTree(object):
 				curr = curr.get_left()
 			return curr
 		parent = node.get_parent()  # if node doesnt have right chile 
-		while parent != None and parent.right == node:  
+		while parent != None and parent.right == node:
 			node = parent
 			parent = parent.get_parent()
 		return parent
@@ -385,7 +385,6 @@ class AVLTree(object):
 		# put B
 		B.set_parent(A)
 		A.set_right(B)
-
 		if parent != None:
 			if parent.get_right() == B:
 				parent.set_right(A)
@@ -403,7 +402,6 @@ class AVLTree(object):
 		# fix sizes
 		B.fix_size()
 		A.fix_size()
-
 		return 1
 
 	def left_rotation(self, B):
@@ -431,8 +429,6 @@ class AVLTree(object):
 			B.fix_height()
 		if not A.is_correct_height():
 			A.fix_height()
-
-
 		# fix sizes
 		B.fix_size()
 		A.fix_size()
@@ -638,7 +634,6 @@ class AVLTree(object):
 		avl_to_array_rec(self.get_root(), array)
 		return array
 
-
 	"""returns the number of items in dictionary 
 
 	@rtype: int
@@ -647,7 +642,6 @@ class AVLTree(object):
 	def size(self):
 		return self.root.get_size()
 
-	
 	"""splits the dictionary at the i'th index
 
 	@type node: AVLNode
@@ -658,31 +652,27 @@ class AVLTree(object):
 	dictionary smaller than node.key, right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
 	"""
-
-
 	def split(self, node):
 		if node == None or not node.is_real_node() or self.size()==1:
 			return [AVLTree(), AVLTree()]
 		TSmaller = AVLTree()
 		TBigger = AVLTree()
-		TSmaller.set_root(node.get_left().clone())
-		TBigger.set_root(node.get_right().clone())
-
-		TTempSmaller = AVLTree()
-		TTempBigger = AVLTree()
+		TSmaller.set_root(node.get_left())
+		TBigger.set_root(node.get_right())
 		lastNode = node
 		node = node.get_parent()
 		while(node != None and node.is_real_node()):
 			currNode = node
 			nextParent = node.get_parent()
-			# print("Im at ", node.get_key())
 			if node.get_right() == lastNode:
-				# print("adding to the small ", node.get_left().get_height() , "TSmaller height " , TSmaller.get_root().get_height() )
-				TTempSmaller.set_root(node.get_left().clone())
+				TTempSmaller = AVLTree()
+				TTempSmaller.set_root(node.get_left())
+				TTempSmaller.get_root().set_parent(None)
 				self.costs.append(TSmaller.join(TTempSmaller, node.get_key(),  node.get_value()))
 			else:
-				# print("adding to the bigger ", node.get_right().get_height() , "TBigger height " , TBigger.get_root().get_height() )
-				TTempBigger.set_root(node.get_right().clone())
+				TTempBigger = AVLTree()
+				TTempBigger.set_root(node.get_right())
+				TTempBigger.get_root().set_parent(None)
 				self.costs.append(TBigger.join(TTempBigger, node.get_key(), node.get_value()))
 			lastNode = currNode
 			node = nextParent
@@ -693,9 +683,6 @@ class AVLTree(object):
 			TSmaller = AVLTree()
 		to_return = [TSmaller, TBigger]
 		return to_return
-
-
-
 
 	"""joins self with key and another AVLTree
 
@@ -710,14 +697,7 @@ class AVLTree(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def join(self, tree2, key, val):
-		# print("joining between tree1: ")
-		# self.print_tree()
-		# print("and tree2: ")
-		# tree2.print_tree()
-		# print("with ", key)
-
 		new_node = AVLNode(key, val)
-
 		if tree2 is None or tree2.get_root() is None or not tree2.get_root().is_real_node():
 			if self.get_root() is None or not self.get_root().is_real_node():
 				self.insert(key, val)
@@ -731,26 +711,20 @@ class AVLTree(object):
 			tree2.insert(key, val)
 			self.set_root(tree2.get_root())
 			return height + 2
-
 		T1 = self
 		T2 = tree2
 
 		runningLeft = True
 		if T1.get_root().get_height() < T2.get_root().get_height():
-			# print("switicng trees")
 			TEMP = T1
 			T1 = T2
 			T2 = TEMP
 		if T1.get_root().get_key() > new_node.get_key() and T2.get_root().get_key() < new_node.get_key():
 			runningLeft = True
-			# print("running left")
 		else:
 			runningLeft = False
-			# print("running right")
-
 		heights_diff = abs(T1.get_root().get_height() - T2.get_root().get_height())
 		if not runningLeft:
-			# print("here111")
 			root1 = T1.get_root()
 			root2 = T2.get_root()
 			# go to the first node that its height is <= T1.height
@@ -770,9 +744,7 @@ class AVLTree(object):
 			else:
 				# new node is connecting 2 roots
 				T1.set_root(new_node)
-
 		else:
-			# print("here222")
 			root1 = T2.get_root() # on purpose it's 2
 			root2 = T1.get_root()
 			# go to the first node that its height is <= T1.height
@@ -792,15 +764,11 @@ class AVLTree(object):
 			else:
 				# new node is connecting 2 roots
 				T1.set_root(new_node)
-		# print("right after connecting ")
-		# T1.print_tree()
 		#T2.set_root(T1.get_root())
 		T1.update_ancestors_heights(new_node)
 		T1.update_ancestors_sizes(new_node)
 		# rebalancing
 		parent = new_node
-		# print("right before balancing ")
-		# T1.print_tree()
 		while parent != None and parent.is_real_node():
 			balance_factor = parent.get_bf()
 			next_parent = parent.get_parent()
@@ -809,7 +777,6 @@ class AVLTree(object):
 			parent = next_parent
 		self.set_root(T1.get_root())
 		return heights_diff + 1
-
 
 	"""returns the root of the tree representing the dictionary
 
@@ -821,7 +788,6 @@ class AVLTree(object):
 
 	def set_root(self, root):
 		self.root = root
-
 
 	@staticmethod
 	def create_tree_from_keys(keys):
@@ -848,25 +814,19 @@ class AVLTree(object):
 		def is_avl_tree_rec(node : 'AVLNode', bf, keys):
 			if node is None or not node.is_real_node():
 				return
-			
 			is_avl_tree_rec(node.get_left() , bf, keys)
 			bf.append(node.get_bf())
 			keys.append(node.get_key())
 			is_avl_tree_rec(node.get_right(), bf, keys)
-		
 		bf = []
 		keys = []
 		is_avl_tree_rec(self.get_root(), bf, keys)
-
 		is_balnced = True
 		for k in bf:
 			if abs(k) > 1:
 				is_balnced = False
 				break
-
-
 		is_bst = all(keys[i] <= keys[i+1] for i in range(len(keys)-1))
-
 		return is_balnced and is_bst
 
 	def clone(self):
