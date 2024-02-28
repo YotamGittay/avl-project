@@ -214,6 +214,13 @@ class AVLNode(object):
 			return True
 		return False
 
+	def get_max(self):
+		curr = self
+		while curr.is_real_node():
+			prev = curr
+			curr = curr.right
+		return prev
+
 
 """
 A class implementing the ADT Dictionary, using an AVL tree.
