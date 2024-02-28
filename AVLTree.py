@@ -1,12 +1,10 @@
 #username - complete info
 #id1      - complete info 
 #name1    - complete info 
-#id2      - complete info
-#name2    - complete info  
+#id2      - 206776304
+#name2    - roei levinson
 
 from typing import Optional
-import random
-
 
 """A class represnting a node in an AVL tree"""
 
@@ -89,9 +87,19 @@ class AVLNode(object):
 	def get_height(self):
 		return self.height
 
+	"""returns the height
+
+	@rtype: int
+	@returns: the last height of self
+	"""
 	def get_last_height(self):
 		return self.last_height
 
+	"""returns the height
+
+	@rtype: int
+	@returns: the size of the subtree of self as a root
+	"""
 	def get_size(self):
 		return self.size
 
@@ -122,12 +130,23 @@ class AVLNode(object):
 			self.fix_size()
 			#self.fix_height()
 
+	"""fixes the size of the node
+	@returns: None 
+	"""
 	def fix_size(self):
 		new_size = 1 + self.get_left().get_size() + self.get_right().get_size()
 		self.set_size(new_size)
 
+	"""fixes the height of the node
+	@returns: None 
+	"""
 	def fix_height(self):
 		self.set_height(max(self.get_left().get_height() + 1, self.get_right().get_height() +1))
+
+	"""fixes the height of the node
+	@type: boolean
+	@returns: True if the height is the correct height based on the children 
+	"""
 	def is_correct_height(self):
 		return max(self.get_left().get_height() + 1, self.get_right().get_height() +1) == self.get_height()
 	"""sets parent
@@ -147,7 +166,6 @@ class AVLNode(object):
 	def set_key(self, key):
 		self.key = key
 
-
 	"""sets value
 
 	@type value: any
@@ -165,10 +183,8 @@ class AVLNode(object):
 	def set_height(self, h):
 		self.last_height = self.height
 		self.height = h
-
 	def set_size(self, size):
 		self.size = size
-
 
 	"""returns whether self is not a virtual node 
 
@@ -199,64 +215,6 @@ class AVLNode(object):
 		return False
 
 
-	def is_criminal(self): # checks if a node is avl criminal, means its bf > 1 or < -1 
-		bf = self.get_bf()
-		if bf < -1 or bf > 1:
-			return True
-		return False
-	
-	def what_child(self): # checks what child is the node to its father (left or right)
-		if self.get_parent() == None: # node has no father
-			return None
-		if self.get_parent().get_left() == self:
-			return "L"
-		if self.get_parent().get_right() == self:
-			return "R"
-		
-
-
-	def print_node(self):
-		"""Prints the details of the AVL node."""
-		if self.is_real_node():
-			print("Key:", self.key)
-			print("Value:", self.value)
-			print("Height:", self.height)
-			print("BF:", self.get_bf())
-			print("Size:", self.size)
-			print("Parent:", self.parent.key if self.parent else None)
-			print("Left Child:", self.left.key if self.left.is_real_node() else None)
-			print("Right Child:", self.right.key if self.right.is_real_node() else None)
-		else:
-			print("Virtual Node")
-
-	def clone(self):
-		if self is None:
-			return None
-
-		new_node = AVLNode(self.get_key(), self.get_value())
-		new_node.set_height(self.get_height())
-		new_node.set_size(self.get_size())
-
-		if self.get_left():
-			new_node.set_left(self.get_left().clone())
-		if self.get_right():
-			new_node.set_right(self.get_right().clone())
-
-		if new_node.get_left() is not None:
-			new_node.get_left().set_parent(new_node)
-		if new_node.get_right() is not None:
-			new_node.get_right().set_parent(new_node)
-
-		return new_node
-	
-	def get_max(self):
-		curr = self
-		while curr.is_real_node():
-			prev = curr
-			curr = curr.right
-		return prev
-
-
 """
 A class implementing the ADT Dictionary, using an AVL tree.
 """
@@ -264,13 +222,11 @@ A class implementing the ADT Dictionary, using an AVL tree.
 class AVLTree(object):
 
 	"""
-	Constructor, you are allowed to add more fields.  
-
+	Constructor, you are allowed to add more fields.
 	"""
 	def __init__(self, root = None):  # probebly need to add more fields
 		self.root = root
 		self.costs = []
-
 
 	"""searches for a AVLNode in the dictionary corresponding to the key
 
@@ -293,11 +249,6 @@ class AVLTree(object):
 		if node.key < key:
 			return self.binary_search(node.right, key)
 		return self.binary_search(node.left, key)
-
-	def delete_by_key(self, key):
-		node = self.search(key)
-		return self.delete(node)
-
 
 	def successor(self, node):  # returns successor of node
 		if not node.is_real_node():  # if node is virtual
@@ -345,7 +296,6 @@ class AVLTree(object):
 			parent.set_left(new_node)
 		else:
 			parent.set_right(new_node)
-
 		# rebalance from the new node to the root, if needed
 		self.update_ancestors_heights(new_node)
 		suspect = parent
@@ -375,7 +325,6 @@ class AVLTree(object):
 		return rotations
 
 	def right_rotation(self, B):
-		# according to slide 55 on presentation
 		parent = B.get_parent()
 		A = B.get_left()
 		AR = A.get_right()
@@ -405,7 +354,6 @@ class AVLTree(object):
 		return 1
 
 	def left_rotation(self, B):
-		# according to slide 55 on presentation
 		parent = B.get_parent()
 		A = B.get_right()
 		AL = A.get_left()
@@ -460,7 +408,6 @@ class AVLTree(object):
 				counter += self.rebalance_delete(parent)
 				parent = next_parent
 		return counter
-
 
 	def rebalance_delete(self, parent):
 		if parent == None or not parent.is_real_node():
@@ -622,7 +569,7 @@ class AVLTree(object):
 	"""
 	def avl_to_array(self): 
 		#recursive helper- append (key, value) pairs in order of keys
-		def avl_to_array_rec(node : 'AVLNode', array): 
+		def avl_to_array_rec(node, array):
 			if node is None or not node.is_real_node():
 				return
 			avl_to_array_rec(node.get_left(), array)
@@ -713,7 +660,6 @@ class AVLTree(object):
 		T1 = self
 		T2 = tree2
 
-		runningLeft = True
 		if T1.get_root().get_height() < T2.get_root().get_height():
 			TEMP = T1
 			T1 = T2
@@ -788,13 +734,6 @@ class AVLTree(object):
 	def set_root(self, root):
 		self.root = root
 
-	@staticmethod
-	def create_tree_from_keys(keys):
-		tree = AVLTree()
-		for k in keys:
-			tree.insert(k, "")
-		return tree
-
 	def print_tree(self):
 		"""Prints the AVL tree."""
 		if self.get_root() == None:
@@ -827,17 +766,3 @@ class AVLTree(object):
 				break
 		is_bst = all(keys[i] <= keys[i+1] for i in range(len(keys)-1))
 		return is_balnced and is_bst
-
-	def clone(self):
-		tree = AVLTree()
-		root = self.get_root().clone()
-		tree.set_root(root)
-		return tree
-	
-	
-
-
-
-	
-
-
