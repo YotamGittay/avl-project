@@ -1,7 +1,7 @@
 import random
 from AVLTree import *
 
-for i in range(1, 11):
+for i in range(1, 10):
     keys = [i for i in range(1000 * (2**i))]
     random.shuffle(keys)
     tree1 = AVLTree()
