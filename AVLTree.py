@@ -593,7 +593,6 @@ class AVLTree(object):
 			return (successor, counter)
 		return (successorParent, counter)
 
-
 	def update_ancestors_sizes(self, node):
 		while node!= None and node.is_real_node():
 			node.fix_size()
