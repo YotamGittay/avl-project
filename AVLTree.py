@@ -718,6 +718,7 @@ class AVLTree(object):
 			TEMP = T1
 			T1 = T2
 			T2 = TEMP
+
 		if T1.get_root().get_key() > new_node.get_key() and T2.get_root().get_key() < new_node.get_key():
 			runningLeft = True
 		else:
