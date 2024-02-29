@@ -708,7 +708,7 @@ class AVLTree(object):
 	@returns: a list [left, right], where left is an AVLTree representing the keys in the 
 	dictionary smaller than node.key, right is an AVLTree representing the keys in the 
 	dictionary larger than node.key.
-	Time complexity: O(log(n)) amortized, O(log(n)^2) w.c 
+	Time complexity: O(log(n))
 	"""
 	def split(self, node):
 		if node == None or not node.is_real_node() or self.size()==1:
