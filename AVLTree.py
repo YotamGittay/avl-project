@@ -231,7 +231,7 @@ class AVLTree(object):
 	"""
 	Constructor, you are allowed to add more fields.
 	"""
-	def __init__(self, root = None):  # probebly need to add more fields
+	def __init__(self, root = None):  
 		self.root = root
 		self.costs = []
 
@@ -271,7 +271,7 @@ class AVLTree(object):
 			parent = parent.get_parent()
 		return parent
 
-	"""inserts val at position i in the dictionary
+	"""inserts key, val at in the dictionary
 
 	@type key: int
 	@pre: key currently does not appear in the dictionary
@@ -281,7 +281,7 @@ class AVLTree(object):
 	@rtype: int
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
-	def insert(self, key, val):  # still has some issues with large trees, cand find problem
+	def insert(self, key, val):  
 		# find where to insert new node 
 		if self.root == None or not self.root.is_real_node():
 			self.root = AVLNode(key, val)
